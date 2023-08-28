@@ -1,6 +1,7 @@
 NAME = malloc
 
-SRCS =	src/malloc.c \
+SRCS =	src/main.c \
+		src/malloc.c\
 
 OBJS = ${SRCS:.c=.o}
 
@@ -8,7 +9,7 @@ LIB = src/libft/libft.a
 
 CC = clang
 
-CFLAGS = -Wall -Werror -Wextra -g
+CFLAGS = -g -Wall -Wextra
 
 RM = rm -f
 
