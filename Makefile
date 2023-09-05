@@ -1,7 +1,11 @@
 NAME = malloc
 
 SRCS =	src/main.c \
-		src/malloc.c\
+		src/malloc.c \
+		src/logger.c \
+		src/heap.c \
+		src/blocks.c \
+		src/utils.c
 
 OBJS = ${SRCS:.c=.o}
 
