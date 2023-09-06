@@ -22,13 +22,11 @@ int main(void)
     ft_printf("size of t_heap:%i t_block:%i\n", sizeof(t_heap), sizeof(t_block));
     ft_printf("tiny arena=%i small arena=%i\n", TINY_ARENA, SMALL_ARENA);
     ft_printf("tiny alloc<=%i small alloc<=%i\n", TINY_ALLOC, SMALL_ALLOC);
-    // char* test = my_malloc(4);
-    // char* test2 = my_malloc(8);
-    // ft_strlcpy(test, "Slt", 4);
-    // printf("Main: %s\n", test);
     char *ptr = my_malloc(10);
+    char *ptrr = my_malloc(10);
+    char *ptrrr = my_malloc(10);
     void *ptr2 = my_malloc(300);
-    void *ptr3 = my_malloc(10);
+    void *ptr3 = my_malloc(55);
     void *ptr4 = my_malloc(1000);
     void *ptr5 = my_malloc(400);
 
@@ -41,5 +39,16 @@ int main(void)
         heap = heap->next;
     }
 
-    my_free(ptr);
+    ft_printf("free--------------\n");
+    my_free(ptr2);
+    my_free(ptr5);
+    my_free(ptr4);
+    // ptr = my_malloc(55);
+
+    t_heap *heap2 = g_heap;
+    while (heap2)
+    {
+        print_heap_info(heap2);
+        heap2 = heap2->next;
+    }
 }

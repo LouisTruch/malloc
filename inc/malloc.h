@@ -32,6 +32,7 @@ typedef struct s_heap
     struct s_heap *next, *prev;
     struct s_block *block;
     t_arena_size arena_size;
+    size_t total_size;
     size_t free_space;
     size_t block_count;
 } t_heap;

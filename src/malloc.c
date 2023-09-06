@@ -12,6 +12,7 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
         return NULL;
     }
     new_heap->arena_size = LARGE;
+    new_heap->total_size = asked_size + sizeof(t_heap) + sizeof(t_block);
     new_heap->block = NULL;
     new_heap->block_count = 1;
     new_heap->free_space = 0;
@@ -113,6 +114,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
             last->next = lst;
         lst->prev = last;
         lst->next = NULL;
+        lst->total_size = arena_size;
         lst->free_space = arena_size - sizeof(t_heap);
         lst->arena_size = get_arena_size(asked_size);
         lst->block_count = 0;
