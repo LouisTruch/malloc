@@ -5,7 +5,8 @@ SRCS =	src/main.c \
 		src/logger.c \
 		src/heap.c \
 		src/blocks.c \
-		src/utils.c
+		src/utils.c \
+		src/free.c
 
 OBJS = ${SRCS:.c=.o}
 

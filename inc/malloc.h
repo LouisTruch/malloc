@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include "../src/libft/libft.h"
 
-
 #include <stdio.h> //REMOVE B4 PUSHING
 
 #define PAGE_SIZE getpagesize()
@@ -14,6 +13,12 @@
 #define TINY_ALLOC (TINY_ARENA / (128 + sizeof(t_block)))
 #define SMALL_ARENA (PAGE_SIZE * 16)
 #define SMALL_ALLOC (SMALL_ARENA / (128 + sizeof(t_block)))
+
+typedef enum e_alloc_type
+{
+    FREE_BLOCK,
+    FREE_SPACE
+} t_alloc_type;
 
 typedef enum e_arena_size
 {
@@ -59,13 +64,14 @@ t_heap *search_adapted_heap(int arena_range, size_t requested_size);
 // Block
 void *get_block_address(t_heap *heap, size_t requested_size);
 
+// Free
+void my_free(void *ptr);
+
 // Utils
 int get_arena_size(size_t size);
 
 void logger(int debug);
 void debug_a(void *ptr);
-
-
 
 // Tests, delete before pushing
 void linked_list(t_heap **heap);

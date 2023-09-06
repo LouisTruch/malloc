@@ -4,7 +4,7 @@ t_heap *g_heap = NULL;
 
 static void *alloc_large(t_heap **heap, const size_t asked_size)
 {
-    t_heap *new_heap = mmap(NULL, asked_size + sizeof(t_heap), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    t_heap *new_heap = mmap(NULL, asked_size + sizeof(t_heap) + sizeof(t_block), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (new_heap == MAP_FAILED)
     {
         // Swap fd 2
@@ -15,15 +15,18 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
     new_heap->block = NULL;
     new_heap->block_count = 1;
     new_heap->free_space = 0;
+    new_heap->block = (void *)new_heap + sizeof(t_heap);
+    new_heap->block->freed = false;
+    new_heap->block->size = asked_size + sizeof(t_block);
     if (!*heap)
     {
         new_heap->next = NULL;
         new_heap->prev = NULL;
         *heap = new_heap;
-        return ((void *)new_heap + sizeof(t_heap));
+        return ((void *)new_heap + sizeof(t_heap) + sizeof(t_block));
     }
     t_heap *lst = *heap, *last = NULL;
-    while(lst)
+    while (lst)
     {
         last = lst;
         lst = lst->next;
@@ -31,11 +34,13 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
     last->next = new_heap;
     new_heap->prev = last;
     new_heap->next = NULL;
-    return ((void *)new_heap + sizeof(t_heap));
+    return ((void *)new_heap + sizeof(t_heap) + sizeof(t_block));
 }
 
 static bool search_free_space(t_heap *heap, const size_t asked_size)
 {
+    if (heap->free_space >= asked_size + sizeof(t_block))
+        return true;
     return false;
 }
 
@@ -44,14 +49,54 @@ static bool search_blocks(t_heap *heap, const size_t asked_size)
     return false;
 }
 
-static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size_t asked_size)
+static void *alloc_block(t_heap **heap, const size_t asked_size)
+{
+    if (search_blocks(*heap, asked_size))
+    {
+        return NULL;
+    }
+    if (search_free_space(*heap, asked_size))
+    {
+        if ((*heap)->block_count == 0)
+        {
+            (*heap)->block_count++;
+            (*heap)->free_space -= sizeof(t_block) - asked_size;
+            (*heap)->block = (void *)(*heap) + sizeof(t_heap);
+            (*heap)->block->next = NULL;
+            (*heap)->block->prev = NULL;
+            (*heap)->block->freed = false;
+            (*heap)->block->size = asked_size + sizeof(t_block);
+            // ft_printf("heap:%X block:%X return:%X\n", *heap, (*heap)->block, (void *)(*heap)->block + sizeof(t_block));
+            return ((void *)(*heap)->block + sizeof(t_block));
+        }
+
+        t_block *lst = (*heap)->block, *last_block = lst;
+        while (lst)
+        {
+            last_block = lst;
+            lst = lst->next;
+        }
+        t_block *new_block = (void *)last_block + sizeof(t_block) + last_block->size;
+        (*heap)->block_count++;
+        last_block->next = new_block;
+        new_block->next = NULL;
+        new_block->prev = last_block;
+        new_block->freed = false;
+        new_block->size = asked_size + sizeof(t_block);
+        (*heap)->free_space -= new_block->size;
+        // ft_printf("new_block_address:%X\n", new_block);
+        return ((void *)new_block + sizeof(t_block));
+    }
+}
+
+static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size_t asked_size, const int arena_range)
 {
     t_heap *lst = *heap, *last = NULL;
-    while(lst)
+    while (lst)
     {
-        if (search_blocks(lst, asked_size) || search_free_space(lst, asked_size))
+        if (lst->arena_size == arena_range && (search_blocks(lst, asked_size) || search_free_space(lst, asked_size)))
         {
-            break ;
+            break;
         }
         last = lst;
         lst = lst->next;
@@ -60,7 +105,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
     {
         if ((lst = mmap(NULL, arena_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED)
         {
-            //Swap to fd 2
+            // Swap to fd 2
             ft_printf("Mmap failed\n");
             return NULL;
         }
@@ -75,7 +120,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
         if (!*heap)
             *heap = lst;
     }
-    return NULL;
+    return (alloc_block(&lst, asked_size));
 }
 
 void *my_malloc(size_t size)
@@ -86,11 +131,11 @@ void *my_malloc(size_t size)
     void *ptr = NULL;
     if (size <= TINY_ALLOC)
     {
-        ptr = alloc_tiny_small(&g_heap, TINY_ARENA, size);
+        ptr = alloc_tiny_small(&g_heap, TINY_ARENA, size, TINY);
     }
     else if (size <= SMALL_ALLOC)
     {
-        ptr = alloc_tiny_small(&g_heap, SMALL_ARENA, size);
+        ptr = alloc_tiny_small(&g_heap, SMALL_ARENA, size, SMALL);
     }
     else
     {
@@ -131,7 +176,7 @@ void linked_list(t_heap **heap)
     if (!*heap)
     {
         *heap = test;
-        return ;
+        return;
     }
     t_heap *head = *heap, *last = NULL;
     while (head)
