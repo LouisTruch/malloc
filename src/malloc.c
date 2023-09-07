@@ -47,14 +47,59 @@ static bool search_free_space(t_heap *heap, const size_t asked_size)
 
 static bool search_blocks(t_heap *heap, const size_t asked_size)
 {
+    t_block *block = heap->block;
+    while (block)
+    {
+        if (block->freed && block->size >= asked_size + sizeof(t_block))
+            return true;
+        block = block->next;
+    }
     return false;
+}
+
+static void divide_block(t_heap **heap, t_block **found_block, const size_t asked_size, const size_t old_block_size)
+{
+    (*found_block)->freed = false;
+    (*found_block)->size = asked_size + sizeof(t_block);
+    if (!(old_block_size > (*found_block)->size + sizeof(t_block) + 1))
+    {
+        ft_printf("Too small to divide\n");
+        return;
+    }
+    ft_printf("Dividing old size%i\n", old_block_size);
+    t_block *new_block = (void *)(*found_block) + (*found_block)->size;
+    new_block->prev = *found_block;
+    new_block->next = (*found_block)->next;
+    (*found_block)->next = new_block;
+    new_block->freed = true;
+    new_block->size = old_block_size - (*found_block)->size;
+    (*heap)->block_count++;
+}
+
+static void *find_free_block(t_heap *heap, const size_t asked_size)
+{
+    t_block *block = heap->block;
+    while (block)
+    {
+        if (block->freed && block->size >= asked_size + sizeof(t_block))
+            return block;
+        block = block->next;
+    }
+    // Swap to fd 2
+    ft_printf("Error while attributing block\n");
+    return NULL;
 }
 
 static void *alloc_block(t_heap **heap, const size_t asked_size)
 {
     if (search_blocks(*heap, asked_size))
     {
-        return NULL;
+        ft_printf("found good block\n");
+        t_block *found_block = find_free_block(*heap, asked_size);
+        ft_printf("test%i\n", found_block->size);
+        size_t old_block_size = found_block->size;
+        divide_block(heap, &found_block, asked_size, old_block_size);
+        return ((void *)found_block + sizeof(t_block));
     }
     if (search_free_space(*heap, asked_size))
     {
@@ -67,7 +112,6 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
             (*heap)->block->prev = NULL;
             (*heap)->block->freed = false;
             (*heap)->block->size = asked_size + sizeof(t_block);
-            // ft_printf("heap:%X block:%X return:%X\n", *heap, (*heap)->block, (void *)(*heap)->block + sizeof(t_block));
             return ((void *)(*heap)->block + sizeof(t_block));
         }
 
@@ -85,9 +129,9 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
         new_block->freed = false;
         new_block->size = asked_size + sizeof(t_block);
         (*heap)->free_space -= new_block->size;
-        // ft_printf("new_block_address:%X\n", new_block);
         return ((void *)new_block + sizeof(t_block));
     }
+    return NULL;
 }
 
 static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size_t asked_size, const int arena_range)
@@ -95,7 +139,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
     t_heap *lst = *heap, *last = NULL;
     while (lst)
     {
-        if (lst->arena_size == arena_range && (search_blocks(lst, asked_size) || search_free_space(lst, asked_size)))
+        if ((int)lst->arena_size == arena_range && (search_blocks(lst, asked_size) || search_free_space(lst, asked_size)))
         {
             break;
         }
@@ -143,32 +187,6 @@ void *my_malloc(size_t size)
     {
         ptr = alloc_large(&g_heap, size);
     }
-    return ptr;
-    // ft_printf("Size asked %i\n", size);
-    // debug_a(g_heap);
-
-    // if (g_heap == NULL)
-    //     g_heap = initialize_heap(get_alloc_range(size), size);
-
-    // debug_a(g_heap);
-
-    // t_heap *heap = search_adapted_heap(get_alloc_range(size), size);
-    // if (heap == NULL)
-    // {
-    //     printf("heap=NULL\n");
-    //     // New heap alloc
-    //     // Allocate heap + link to existing linked list
-    // }
-
-    // void *ptr = get_block_address(heap, size);
-    // int i = 0;
-    // t_heap *test = g_heap;
-    // while (test->block != NULL)
-    // {
-    //     ft_printf("%i\n", i);
-    //     test->block = test->block->next;
-    // }
-    // debug_a(ptr);
     return ptr;
 }
 

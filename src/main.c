@@ -23,10 +23,8 @@ int main(void)
     ft_printf("tiny arena=%i small arena=%i\n", TINY_ARENA, SMALL_ARENA);
     ft_printf("tiny alloc<=%i small alloc<=%i\n", TINY_ALLOC, SMALL_ALLOC);
     char *ptr = my_malloc(10);
-    char *ptrr = my_malloc(10);
-    char *ptrrr = my_malloc(10);
+    char *ptrr = my_malloc(100);
     void *ptr2 = my_malloc(300);
-    void *ptr3 = my_malloc(55);
     void *ptr4 = my_malloc(1000);
     void *ptr5 = my_malloc(400);
 
@@ -40,9 +38,8 @@ int main(void)
     }
 
     ft_printf("free--------------\n");
-    my_free(ptr2);
-    my_free(ptr5);
-    my_free(ptr4);
+    my_free(ptrr);
+    char *test = my_malloc(1);
     // ptr = my_malloc(55);
 
     t_heap *heap2 = g_heap;
@@ -50,5 +47,17 @@ int main(void)
     {
         print_heap_info(heap2);
         heap2 = heap2->next;
+    }
+
+    ft_printf("dividing tests------------\n");
+
+    char *a = my_malloc(100);
+    my_free(a);
+    a = my_malloc(65);
+    t_heap *heap3 = g_heap;
+    while (heap3)
+    {
+        print_heap_info(heap3);
+        heap3 = heap3->next;
     }
 }
