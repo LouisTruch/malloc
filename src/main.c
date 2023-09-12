@@ -2,7 +2,9 @@
 
 static void print_block_info(t_block *block)
 {
-    ft_printf("block address:%X block_size:%i freed:%i\n", block, block->size, block->freed);
+    size_t test = block;
+    bool aligned = test & 0xF;
+    ft_printf("block address:%X block_size:%i freed:%i align:%X\n", block, block->size, block->freed, aligned);
 }
 
 static void print_heap_info(t_heap *heap)
@@ -22,42 +24,19 @@ int main(void)
     ft_printf("size of t_heap:%i t_block:%i\n", sizeof(t_heap), sizeof(t_block));
     ft_printf("tiny arena=%i small arena=%i\n", TINY_ARENA, SMALL_ARENA);
     ft_printf("tiny alloc<=%i small alloc<=%i\n", TINY_ALLOC, SMALL_ALLOC);
-    char *ptr = my_malloc(10);
-    char *ptrr = my_malloc(100);
+    // char *ptr0 = my_malloc(35);
+    // char *ptr4 = my_malloc(4);
+    char *ptr1 = my_malloc(100);
     void *ptr2 = my_malloc(300);
-    void *ptr4 = my_malloc(1000);
-    void *ptr5 = my_malloc(400);
 
-    ft_strlcat(ptr, "slttest\n", 10);
-    ft_printf(ptr);
-    t_heap *heap = g_heap;
-    while (heap)
-    {
-        print_heap_info(heap);
-        heap = heap->next;
-    }
+    show_alloc_mem();
+    my_free(ptr2);
+    char *ptr3 = my_malloc(200);
+    char *ptr4 = my_malloc(200);
+    my_free(ptr4);
+    my_free(ptr3);
+    my_free(ptr2);
+    my_free(ptr1);
 
-    ft_printf("free--------------\n");
-    my_free(ptrr);
-    char *test = my_malloc(1);
-    // ptr = my_malloc(55);
-
-    t_heap *heap2 = g_heap;
-    while (heap2)
-    {
-        print_heap_info(heap2);
-        heap2 = heap2->next;
-    }
-
-    ft_printf("dividing tests------------\n");
-
-    char *a = my_malloc(100);
-    my_free(a);
-    a = my_malloc(65);
-    t_heap *heap3 = g_heap;
-    while (heap3)
-    {
-        print_heap_info(heap3);
-        heap3 = heap3->next;
-    }
+    show_alloc_mem();
 }

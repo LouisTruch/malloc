@@ -14,6 +14,9 @@
 #define SMALL_ARENA (PAGE_SIZE * 16)
 #define SMALL_ALLOC (SMALL_ARENA / (128 + sizeof(t_block)))
 
+#define MEM_ALLIGN 16
+#define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
+
 typedef enum e_alloc_type
 {
     FREE_BLOCK,
@@ -53,7 +56,8 @@ typedef enum e_log
     BLOCK_CREATION,
     BLOCK_ATTRIBUTION,
     BLOCK_RELEASE,
-    BLOCK_DEFRAG,
+    MEM_DEFRAG,
+    BLOCK_DIVISION
 } t_log;
 
 void *my_malloc(size_t size);
@@ -70,9 +74,11 @@ void my_free(void *ptr);
 
 // Utils
 int get_arena_size(size_t size);
+size_t align_mem(size_t size);
 
 void logger(int debug);
 void debug_a(void *ptr);
+void show_alloc_mem(void);
 
 // Tests, delete before pushing
 void linked_list(t_heap **heap);

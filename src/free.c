@@ -6,24 +6,21 @@ static void dealloc_heap(t_heap **heap)
     if (!(*heap)->prev)
     {
         g_heap = (*heap)->next;
-        g_heap->prev = NULL;
         return;
     }
     (*heap)->prev->next = (*heap)->next;
     if ((*heap)->next)
         (*heap)->next->prev = (*heap)->prev;
-    int ret = munmap(to_dealloc, to_dealloc->total_size);
-    if (ret)
-    {
-        // Swap to fd 2
-        ft_printf("munmap error\n");
-    }
+    logger(HEAP_DEALLOC);
+    if (munmap(to_dealloc, to_dealloc->total_size))
+        ft_putstr_fd("Free: munmap error\n", 2);
 }
 
 static void defrag_blocks(t_heap **heap, t_block **block)
 {
     if ((*block)->next && (*block)->next->freed)
     {
+        logger(MEM_DEFRAG);
         (*block)->size += (*block)->next->size;
         (*block)->next = (*block)->next->next;
         if ((*block)->next)
@@ -39,18 +36,16 @@ static void free_tiny_small(t_heap **heap, t_block **block)
     (*block)->freed = true;
 
     if (((*block)->prev && (*block)->prev->freed) || ((*block)->next && (*block)->next->freed))
-    {
         defrag_blocks(heap, block);
-    }
     if ((*heap)->block_count == 1 && (*heap)->block->freed)
-    {
-        ft_printf("unalloc heap\n");
         dealloc_heap(heap);
-    }
 }
 
 void my_free(void *ptr)
 {
+    if (!ptr)
+        return;
+
     ptr -= sizeof(t_block);
 
     t_heap *heap = g_heap;
@@ -65,19 +60,14 @@ void my_free(void *ptr)
             if (block == ptr)
             {
                 if (heap->arena_size == LARGE)
-                {
                     dealloc_heap(&heap);
-                }
                 else
-                {
                     free_tiny_small(&heap, &block);
-                }
                 return;
             }
             block = block->next;
         }
         heap = heap->next;
     }
-    // Swap to fd 2
-    ft_printf("Invalid pointer\n");
+    ft_putstr_fd("Free: invalid pointer\n", 2);
 }

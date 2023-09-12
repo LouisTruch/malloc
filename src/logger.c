@@ -20,6 +20,12 @@ void logger(int debug)
     case BLOCK_RELEASE:
         ft_printf("Block released\n");
         break;
+    case BLOCK_DIVISION:
+        ft_printf("Dividing block\n");
+        break;
+    case MEM_DEFRAG:
+        ft_printf("Defragmenting memory\n");
+        break;
     }
     // #endif
 }
