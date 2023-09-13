@@ -17,20 +17,14 @@ static void *is_valid_ptr(void *ptr, t_heap **heap)
     return NULL;
 }
 
-static void *check_available_size(t_heap **heap, t_block **block, const size_t new_size)
+static void *try_adjacent_block(t_heap **heap, t_block **block, const size_t new_size)
 {
-    // If still enough room in the heap, grow the block
-    if (!(*block)->next && ((*block)->size + (*heap)->free_space >= new_size + sizeof(t_block)))
+    if ((*block)->next && (*block)->next->size >= new_size - (*block)->size)
     {
-        (*heap)->free_space += (*block)->size;
         (*block)->size = new_size + sizeof(t_block);
-        (*heap)->free_space -= (*block)->size;
-        return (*block);
+        (*block)->next = (*block)->next->next;
+        return *block;
     }
-    // If an adjacent block is freed and there is enough space
-    // void *ptr = my_malloc(new_size);
-    // my_free(*block);
-    // return ptr;
     return NULL;
 }
 
@@ -38,7 +32,11 @@ static void *try_filling_heap(t_heap **heap, t_block **block, const size_t new_s
 {
     if (!(*block)->next && (new_size - (*block)->size >= (*heap)->free_space))
     {
+        (*heap)->free_space -= (new_size - (*block)->size);
+        (*block)->size = new_size + sizeof(t_block);
+        return *block;
     }
+    return NULL;
 }
 
 static void divide_block(t_heap **heap, t_block **block)
@@ -60,11 +58,13 @@ void *my_realloc(void *ptr, size_t size)
         ft_putstr_fd("Realloc: invalid pointer\n", 2);
         return NULL;
     }
-    void *new_ptr;
     // ?? below condition
-    if (block->size == size - sizeof(t_block))
+    if (block->size - sizeof(t_block) <= size)
     {
         divide_block(&heap, &block);
+        return block;
     }
-    try_filling_heap();
+    void *new_ptr;
+    if ((new_ptr = try_filling_heap(&heap, &block, size)) || (new_ptr = try_adjacent_block(&heap, &block, size)))
+        return new_ptr;
 }
