@@ -6,7 +6,8 @@ SRCS =	src/main.c \
 		src/heap.c \
 		src/blocks.c \
 		src/utils.c \
-		src/free.c
+		src/free.c \
+		src/realloc.c
 
 OBJS = ${SRCS:.c=.o}
 

@@ -61,6 +61,7 @@ typedef enum e_log
 } t_log;
 
 void *my_malloc(size_t size);
+void *my_realloc(void *ptr, size_t size);
 
 // Heap
 t_heap *initialize_heap(int arena_range, size_t requested_size);
