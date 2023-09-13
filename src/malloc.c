@@ -54,7 +54,7 @@ static bool search_blocks(t_heap *heap, const size_t asked_size)
     return false;
 }
 
-static void divide_block(t_heap **heap, t_block **found_block, const size_t asked_size, const size_t old_block_size)
+static void divide_block(t_heap **heap, t_block **found_block, const size_t old_block_size)
 {
     if (old_block_size - (*found_block)->size >= (align_mem(1 + sizeof(t_block))))
     {
@@ -78,7 +78,6 @@ static void *find_free_block(t_heap *heap, const size_t asked_size)
             return block;
         block = block->next;
     }
-    // Swap to fd 2
     ft_putstr_fd("Malloc: Error while attributing block\n", 2);
     return NULL;
 }
@@ -92,7 +91,7 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
         size_t old_block_size = found_block->size;
         found_block->size = asked_size + sizeof(t_block);
         found_block->freed = false;
-        divide_block(heap, &found_block, asked_size, old_block_size);
+        divide_block(heap, &found_block, old_block_size);
         return ((void *)found_block + sizeof(t_block));
     }
 
@@ -102,12 +101,12 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
         if ((*heap)->block_count == 0)
         {
             (*heap)->block_count++;
-            (*heap)->free_space -= sizeof(t_block) - asked_size;
             (*heap)->block = (void *)(*heap) + sizeof(t_heap) + HEAP_SHIFT;
             (*heap)->block->next = NULL;
             (*heap)->block->prev = NULL;
             (*heap)->block->freed = false;
             (*heap)->block->size = asked_size + sizeof(t_block);
+            (*heap)->free_space -= (*heap)->block->size;
             return ((void *)(*heap)->block + sizeof(t_block));
         }
 
@@ -117,7 +116,8 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
             last_block = lst;
             lst = lst->next;
         }
-        t_block *new_block = (void *)last_block + sizeof(t_block) + last_block->size;
+        t_block *new_block = (void *)last_block + last_block->size;
+
         (*heap)->block_count++;
         last_block->next = new_block;
         new_block->next = NULL;
@@ -136,9 +136,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
     while (lst)
     {
         if ((int)lst->arena_size == arena_range && (search_blocks(lst, asked_size) || search_free_space(lst, asked_size)))
-        {
             break;
-        }
         last = lst;
         lst = lst->next;
     }
@@ -165,7 +163,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
     return (alloc_block(&lst, asked_size));
 }
 
-void *my_malloc(size_t size)
+void *malloc(size_t size)
 {
     if (!size)
         return NULL;

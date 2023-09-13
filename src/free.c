@@ -41,7 +41,7 @@ static void free_tiny_small(t_heap **heap, t_block **block)
         dealloc_heap(heap);
 }
 
-void my_free(void *ptr)
+void free(void *ptr)
 {
     if (!ptr)
         return;

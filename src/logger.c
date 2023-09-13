@@ -3,6 +3,8 @@
 void logger(int debug)
 {
     // #ifdef LOG
+    return;
+    static int i = 0;
     switch (debug)
     {
     case HEAP_ALLOC:
@@ -12,7 +14,7 @@ void logger(int debug)
         ft_printf("Heap deletion\n");
         break;
     case BLOCK_CREATION:
-        ft_printf("New block created\n");
+        ft_printf("New block created %i\n", i);
         break;
     case BLOCK_ATTRIBUTION:
         ft_printf("Block attributed\n");
@@ -27,5 +29,6 @@ void logger(int debug)
         ft_printf("Defragmenting memory\n");
         break;
     }
+    i++;
     // #endif
 }

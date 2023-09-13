@@ -3,8 +3,6 @@ NAME = malloc
 SRCS =	src/main.c \
 		src/malloc.c \
 		src/logger.c \
-		src/heap.c \
-		src/blocks.c \
 		src/utils.c \
 		src/free.c \
 		src/realloc.c
@@ -15,7 +13,7 @@ LIB = src/libft/libft.a
 
 CC = clang
 
-CFLAGS = -g -Wall -Wextra
+CFLAGS = -g -Wall -Wextra -Werror
 
 RM = rm -f
 

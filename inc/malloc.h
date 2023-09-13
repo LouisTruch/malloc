@@ -17,12 +17,6 @@
 #define MEM_ALLIGN 16
 #define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
 
-typedef enum e_alloc_type
-{
-    FREE_BLOCK,
-    FREE_SPACE
-} t_alloc_type;
-
 typedef enum e_arena_size
 {
     TINY,
@@ -60,28 +54,15 @@ typedef enum e_log
     BLOCK_DIVISION
 } t_log;
 
-void *my_malloc(size_t size);
-void *my_realloc(void *ptr, size_t size);
-
-// Heap
-t_heap *initialize_heap(int arena_range, size_t requested_size);
-t_heap *search_adapted_heap(int arena_range, size_t requested_size);
-
-// Block
-void *get_block_address(t_heap *heap, size_t requested_size);
-
-// Free
-void my_free(void *ptr);
+void *malloc(size_t size);
+void *realloc(void *ptr, size_t size);
+void free(void *ptr);
 
 // Utils
 int get_arena_size(size_t size);
 size_t align_mem(size_t size);
 
 void logger(int debug);
-void debug_a(void *ptr);
 void show_alloc_mem(void);
-
-// Tests, delete before pushing
-void linked_list(t_heap **heap);
 
 #endif // MALLOC_H

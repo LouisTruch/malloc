@@ -37,7 +37,7 @@ static void print_heap_info(t_heap *heap)
         ft_printf("LARGE : ");
         break;
     }
-    ft_printf("%p\n", heap);
+    ft_printf("%p - %p\n", heap, heap + heap->total_size);
 }
 
 void show_alloc_mem(void)
@@ -62,12 +62,4 @@ int get_arena_size(size_t size)
         return SMALL;
     else
         return LARGE;
-}
-
-void debug_a(void *ptr)
-{
-    return;
-    static int pass = 0;
-    ft_printf("DEBUG pass %i: %X\n", pass, ptr);
-    pass++;
 }

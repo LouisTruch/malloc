@@ -17,10 +17,10 @@ static void *is_valid_ptr(void *ptr, t_heap **heap)
     return NULL;
 }
 
-void *my_realloc(void *ptr, size_t size)
+void *realloc(void *ptr, size_t size)
 {
     if (!ptr || !size)
-        return (my_malloc(size));
+        return (malloc(size));
 
     t_heap *heap = g_heap;
     t_block *block;
@@ -33,11 +33,11 @@ void *my_realloc(void *ptr, size_t size)
     if (block->size == align_mem(size + sizeof(t_block)))
         return (void *)block + sizeof(t_block);
 
-    void *res_ptr = my_malloc(size);
+    void *res_ptr = malloc(size);
     if (block->size > size)
         ft_memmove(res_ptr, ptr, size);
     else
         ft_memmove(res_ptr, ptr, block->size);
-    my_free(ptr + sizeof(t_block));
+    free(ptr + sizeof(t_block));
     return res_ptr + sizeof(t_block);
 }
