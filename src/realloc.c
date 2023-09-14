@@ -25,19 +25,26 @@ void *realloc(void *ptr, size_t size)
     t_heap *heap = g_heap;
     t_block *block;
     ptr -= sizeof(t_block);
+
+    pthread_mutex_lock(&g_mutex);
     if (!(block = is_valid_ptr(ptr, &heap)))
     {
+        pthread_mutex_unlock(&g_mutex);
         ft_putstr_fd("Realloc: invalid pointer\n", 2);
         return NULL;
     }
     if (block->size == align_mem(size + sizeof(t_block)))
+    {
+        pthread_mutex_unlock(&g_mutex);
         return (void *)block + sizeof(t_block);
+    }
 
     void *res_ptr = malloc(size);
     if (block->size > size)
         ft_memmove(res_ptr, ptr, size);
     else
         ft_memmove(res_ptr, ptr, block->size);
+    pthread_mutex_unlock(&g_mutex);
     free(ptr + sizeof(t_block));
     return res_ptr + sizeof(t_block);
 }

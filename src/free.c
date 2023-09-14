@@ -11,7 +11,6 @@ static void dealloc_heap(t_heap **heap)
     (*heap)->prev->next = (*heap)->next;
     if ((*heap)->next)
         (*heap)->next->prev = (*heap)->prev;
-    logger(HEAP_DEALLOC);
     if (munmap(to_dealloc, to_dealloc->total_size))
         ft_putstr_fd("Free: munmap error\n", 2);
 }
@@ -20,7 +19,6 @@ static void defrag_blocks(t_heap **heap, t_block **block)
 {
     if ((*block)->next && (*block)->next->freed)
     {
-        logger(MEM_DEFRAG);
         (*block)->size += (*block)->next->size;
         (*block)->next = (*block)->next->next;
         if ((*block)->next)
@@ -50,6 +48,7 @@ void free(void *ptr)
 
     t_heap *heap = g_heap;
     t_block *block = NULL;
+    pthread_mutex_lock(&g_mutex);
     while (heap)
     {
         // Can opti this cause of heap address' range
@@ -63,11 +62,13 @@ void free(void *ptr)
                     dealloc_heap(&heap);
                 else
                     free_tiny_small(&heap, &block);
+                pthread_mutex_unlock(&g_mutex);
                 return;
             }
             block = block->next;
         }
         heap = heap->next;
     }
+    pthread_mutex_unlock(&g_mutex);
     ft_putstr_fd("Free: invalid pointer\n", 2);
 }

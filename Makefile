@@ -1,41 +1,53 @@
-NAME = malloc
+ifeq ($(HOSTTYPE),)
+	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
+endif
 
-SRCS =	src/main.c \
-		src/malloc.c \
-		src/logger.c \
-		src/utils.c \
-		src/free.c \
-		src/realloc.c
+PATH_INC = inc
+PATH_LIB = lib
+PATH_OBJ = obj
+PATH_SRC = src
 
-OBJS = ${SRCS:.c=.o}
+SOURCES += malloc.c free.c realloc.c utils.c lib.c
 
-LIB = src/libft/libft.a
+OBJECTS = $(SOURCES:%.c=$(PATH_OBJ)/%.o)
 
-CC = clang
+# **************************************************************************** #
+# VARIABLES         														   #
+# **************************************************************************** #
 
-CFLAGS = -g -Wall -Wextra -Werror
+NAME = libft_malloc_$(HOSTTYPE).so
+LIB_NAME = libft_malloc.so
 
-RM = rm -f
+CC = gcc
 
-all		:	${NAME}
+FLAGS_CC = -Wall -Wextra -Werror -fPIC
+FLAGS_LIB = -shared
 
-.c.o	:	${CC} ${CFLAGS} -c $< -o ${<:.c=.o}
+# **************************************************************************** #
+# COMMANDS  		    													   #
+# **************************************************************************** #
 
-${NAME}	:	${OBJS}
-		make -C src/libft
-		${CC} ${CFLAGS} -o ${NAME} ${OBJS} ${LIB}
 
-libft	:
-		make -C src/libft
+all: $(NAME)
 
-clean	:
-		make -C src/libft clean
-		${RM} ${OBJS}
+$(NAME): $(OBJECTS)
+	$(CC) $(FLAGS_LIB) -o $@ $(OBJECTS)
+	@rm -f $(LIB_NAME)
+	ln -s $(NAME) $(LIB_NAME)
+	@echo "Make done"
 
-fclean	:
-		make -C src/libft fclean
-		${RM} ${OBJS}
+$(PATH_OBJ)/%.o: $(PATH_SRC)/%.c
+	@mkdir -p $(@D)
+	$(CC) -c -o $@ $(FLAGS_CC) $^ -O0 -g -I $(PATH_INC)
 
-re		: fclean all
+clean:
+	@rm -rf $(PATH_OBJ)
+	@echo "Clean done"
 
-.PHONY	: all clean fclean re libft
+fclean: clean
+	@rm -f $(NAME) $(LIB_NAME)
+	@echo "Fclean done"
+
+re: fclean $(NAME)
+
+.PHONY: all clean fclean re

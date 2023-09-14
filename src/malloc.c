@@ -1,10 +1,10 @@
 #include "../inc/malloc.h"
 
 t_heap *g_heap = NULL;
+pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void *alloc_large(t_heap **heap, const size_t asked_size)
 {
-    logger(HEAP_ALLOC);
     t_heap *new_heap = mmap(NULL, asked_size + sizeof(t_heap) + sizeof(t_block), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (new_heap == MAP_FAILED)
     {
@@ -58,7 +58,6 @@ static void divide_block(t_heap **heap, t_block **found_block, const size_t old_
 {
     if (old_block_size - (*found_block)->size >= (align_mem(1 + sizeof(t_block))))
     {
-        logger(BLOCK_DIVISION);
         t_block *new_block = (void *)(*found_block) + (*found_block)->size;
         new_block->prev = *found_block;
         new_block->next = (*found_block)->next;
@@ -86,7 +85,6 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
 {
     if (search_blocks(*heap, asked_size))
     {
-        logger(BLOCK_ATTRIBUTION);
         t_block *found_block = find_free_block(*heap, asked_size);
         size_t old_block_size = found_block->size;
         found_block->size = asked_size + sizeof(t_block);
@@ -97,7 +95,6 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
 
     if (search_free_space(*heap, asked_size))
     {
-        logger(BLOCK_CREATION);
         if ((*heap)->block_count == 0)
         {
             (*heap)->block_count++;
@@ -142,7 +139,6 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
     }
     if (!lst)
     {
-        logger(HEAP_ALLOC);
         if ((lst = mmap(NULL, arena_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED)
         {
             ft_putstr_fd("Malloc: Mmap fail\n", 2);
@@ -170,11 +166,13 @@ void *malloc(size_t size)
 
     size = align_mem(size);
     void *ptr = NULL;
+    pthread_mutex_lock(&g_mutex);
     if (size <= TINY_ALLOC)
         ptr = alloc_tiny_small(&g_heap, TINY_ARENA, size, TINY);
     else if (size <= SMALL_ALLOC)
         ptr = alloc_tiny_small(&g_heap, SMALL_ARENA, size, SMALL);
     else
         ptr = alloc_large(&g_heap, size);
+    pthread_mutex_unlock(&g_mutex);
     return ptr;
 }

@@ -1,12 +1,10 @@
 #ifndef MALLOC_H
 #define MALLOC_H
 
-#include <sys/mman.h> //mmap() munmap()
-#include <unistd.h>   //getpagesize()
+#include <sys/mman.h> // mmap() munmap()
+#include <unistd.h>   // getpagesize()
 #include <stdbool.h>
-#include "../src/libft/libft.h"
-
-#include <stdio.h> //REMOVE B4 PUSHING
+#include <pthread.h> // mutex
 
 #define PAGE_SIZE getpagesize()
 #define TINY_ARENA (PAGE_SIZE * 4)
@@ -54,6 +52,8 @@ typedef enum e_log
     BLOCK_DIVISION
 } t_log;
 
+extern pthread_mutex_t g_mutex;
+
 void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
 void free(void *ptr);
@@ -61,6 +61,10 @@ void free(void *ptr);
 // Utils
 int get_arena_size(size_t size);
 size_t align_mem(size_t size);
+
+// Lib
+void *ft_memmove(void *dest, const void *src, size_t n);
+void ft_putstr_fd(char *s, int fd);
 
 void logger(int debug);
 void show_alloc_mem(void);
