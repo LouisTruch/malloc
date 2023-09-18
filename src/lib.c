@@ -27,7 +27,7 @@ void *ft_memmove(void *dest, const void *src, size_t n)
     return ((void *)dest);
 }
 
-static size_t ft_strlen(const char *s)
+size_t ft_strlen(const char *s)
 {
     int i;
 

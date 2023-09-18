@@ -36,7 +36,7 @@ void *realloc(void *ptr, size_t size)
     if (block->size == align_mem(size + sizeof(t_block)))
     {
         pthread_mutex_unlock(&g_mutex);
-        return (void *)block + sizeof(t_block);
+        return ((void *)block + sizeof(t_block));
     }
 
     void *res_ptr = malloc(size);

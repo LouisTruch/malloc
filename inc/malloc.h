@@ -61,12 +61,17 @@ void free(void *ptr);
 // Utils
 int get_arena_size(size_t size);
 size_t align_mem(size_t size);
+void show_alloc_mem(void);
 
 // Lib
+#include <stdarg.h>
+#define B_DEC "0123456789"
+#define B_HEXL "0123456789abcdef"
+#define B_HEXU "0123456789ABCDEF"
+int ft_printf(const char *format, ...);
+
+size_t ft_strlen(const char *s);
 void *ft_memmove(void *dest, const void *src, size_t n);
 void ft_putstr_fd(char *s, int fd);
-
-void logger(int debug);
-void show_alloc_mem(void);
 
 #endif // MALLOC_H
