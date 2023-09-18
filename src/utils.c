@@ -46,7 +46,7 @@ void show_alloc_mem(void)
     size_t total_alloc = 0;
     while (heap)
     {
-        print_heap_ls`info(heap);
+        print_heap_info(heap);
         total_alloc += print_blocks(heap->block);
         heap = heap->next;
     }
