@@ -6,8 +6,8 @@ PATH_INC = inc
 PATH_OBJ = obj
 PATH_SRC = src
 
-SRC += malloc.c free.c realloc.c utils.c lib.c ft_printf.c
-SRC_TEST += main.c malloc.c free.c realloc.c utils.c lib.c ft_printf.c 
+SRC += malloc.c free.c realloc.c utils.c lib.c ft_printf.c show_alloc_mem.c logger.c hex_dump.c
+SRC_TEST += main.c malloc.c free.c realloc.c utils.c lib.c ft_printf.c show_alloc_mem.c logger.c hex_dump.c
 
 OBJ = $(SRC:%.c=$(PATH_OBJ)/%.o)
 OBJ_TEST = $(SRC_TEST:%.c=$(PATH_OBJ)/%.o)

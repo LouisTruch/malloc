@@ -61,7 +61,11 @@ void free(void *ptr);
 // Utils
 int get_arena_size(size_t size);
 size_t align_mem(size_t size);
+
+// Log
 void show_alloc_mem(void);
+void print_heap_info(t_heap *heap);
+void show_alloc_mem_hex(void);
 
 // Lib
 #include <stdarg.h>
