@@ -3,13 +3,14 @@ ifeq ($(HOSTTYPE),)
 endif
 
 PATH_INC = inc
-PATH_LIB = lib
 PATH_OBJ = obj
 PATH_SRC = src
 
-SOURCES += malloc.c free.c realloc.c utils.c lib.c
+SRC += malloc.c free.c realloc.c utils.c lib.c ft_printf.c
+SRC_TEST += main.c malloc.c free.c realloc.c utils.c lib.c ft_printf.c 
 
-OBJECTS = $(SOURCES:%.c=$(PATH_OBJ)/%.o)
+OBJ = $(SRC:%.c=$(PATH_OBJ)/%.o)
+OBJ_TEST = $(SRC_TEST:%.c=$(PATH_OBJ)/%.o)
 
 # **************************************************************************** #
 # VARIABLES         														   #
@@ -17,10 +18,12 @@ OBJECTS = $(SOURCES:%.c=$(PATH_OBJ)/%.o)
 
 NAME = libft_malloc_$(HOSTTYPE).so
 LIB_NAME = libft_malloc.so
+NAME_TEST = malloc
 
 CC = gcc
 
 FLAGS_CC = -Wall -Wextra -Werror -fPIC
+FLAGS_TEST = -Wall -Wextra -Werror
 FLAGS_LIB = -shared
 
 # **************************************************************************** #
@@ -30,11 +33,14 @@ FLAGS_LIB = -shared
 
 all: $(NAME)
 
-$(NAME): $(OBJECTS)
-	$(CC) $(FLAGS_LIB) -o $@ $(OBJECTS)
+$(NAME): $(OBJ)
+	$(CC) $(FLAGS_LIB) -o $@ $(OBJ)
 	@rm -f $(LIB_NAME)
 	ln -s $(NAME) $(LIB_NAME)
 	@echo "Make done"
+
+$(NAME_TEST): $(OBJ_TEST)
+	$(CC) $(FLAGS_TEST) -o $(NAME_TEST) $(OBJ_TEST)
 
 $(PATH_OBJ)/%.o: $(PATH_SRC)/%.c
 	@mkdir -p $(@D)
@@ -45,7 +51,7 @@ clean:
 	@echo "Clean done"
 
 fclean: clean
-	@rm -f $(NAME) $(LIB_NAME)
+	@rm -f $(NAME) $(NAME_TEST) $(LIB_NAME)
 	@echo "Fclean done"
 
 re: fclean $(NAME)
