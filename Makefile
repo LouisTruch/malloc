@@ -6,8 +6,8 @@ PATH_INC = inc
 PATH_OBJ = obj
 PATH_SRC = src
 
-SRC += malloc.c free.c realloc.c utils.c lib.c ft_printf.c show_alloc_mem.c logger.c hex_dump.c
-SRC_TEST += main.c malloc.c free.c realloc.c utils.c lib.c ft_printf.c show_alloc_mem.c logger.c hex_dump.c
+SRC += malloc.c free.c realloc.c utils.c lib.c ft_printf.c show_alloc_mem.c logger.c hex_dump.c record_alloc_history.c
+SRC_TEST += main.c malloc.c free.c realloc.c utils.c lib.c ft_printf.c show_alloc_mem.c logger.c hex_dump.c record_alloc_history.c
 
 OBJ = $(SRC:%.c=$(PATH_OBJ)/%.o)
 OBJ_TEST = $(SRC_TEST:%.c=$(PATH_OBJ)/%.o)
@@ -19,6 +19,8 @@ OBJ_TEST = $(SRC_TEST:%.c=$(PATH_OBJ)/%.o)
 NAME = libft_malloc_$(HOSTTYPE).so
 LIB_NAME = libft_malloc.so
 NAME_TEST = malloc
+
+HISTORY_FILEPATH = alloc_history
 
 CC = gcc
 
@@ -47,11 +49,11 @@ $(PATH_OBJ)/%.o: $(PATH_SRC)/%.c
 	$(CC) -c -o $@ $(FLAGS_CC) $^ -O0 -g -I $(PATH_INC)
 
 clean:
-	@rm -rf $(PATH_OBJ)
+	@rm -rf $(PATH_OBJ) 
 	@echo "Clean done"
 
 fclean: clean
-	@rm -f $(NAME) $(NAME_TEST) $(LIB_NAME)
+	@rm -f $(NAME) $(NAME_TEST) $(LIB_NAME) $(HISTORY_FILEPATH)
 	@echo "Fclean done"
 
 re: fclean $(NAME)

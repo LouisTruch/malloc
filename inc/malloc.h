@@ -41,17 +41,6 @@ typedef struct s_block
     bool freed;
 } t_block;
 
-typedef enum e_log
-{
-    HEAP_ALLOC,
-    HEAP_DEALLOC,
-    BLOCK_CREATION,
-    BLOCK_ATTRIBUTION,
-    BLOCK_RELEASE,
-    MEM_DEFRAG,
-    BLOCK_DIVISION
-} t_log;
-
 extern pthread_mutex_t g_mutex;
 
 void *malloc(size_t size);
@@ -69,13 +58,53 @@ void show_alloc_mem_hex(void);
 
 // Lib
 #include <stdarg.h>
+
 #define B_DEC "0123456789"
 #define B_HEXL "0123456789abcdef"
 #define B_HEXU "0123456789ABCDEF"
-int ft_printf(const char *format, ...);
 
+int ft_printf(const char *format, ...);
 size_t ft_strlen(const char *s);
 void *ft_memmove(void *dest, const void *src, size_t n);
 void ft_putstr_fd(char *s, int fd);
+
+// Bonus logger
+#include <stdlib.h> // getenv()
+
+#define LOGGER_ENV_VAR "MY_MALLOC_LOG"
+
+typedef enum e_logger_state
+{
+    UNDEFINED,
+    DISABLED,
+    ENABLED
+} t_logger_state;
+
+typedef enum e_log
+{
+    HEAP_ALLOC,
+    HEAP_DEALLOC,
+    BLOCK_CREATION,
+    BLOCK_ATTRIBUTION,
+    BLOCK_FREED,
+    BLOCK_DIVISION,
+    MEM_DEFRAG,
+} t_log;
+
+void logger(int action);
+
+// Bonus history
+#include <fcntl.h> // open()
+#include <errno.h> // open() errno
+
+#define HISTORY_FILEPATH "./alloc_history"
+
+typedef enum e_function_call
+{
+    ALLOC,
+    FREE,
+} t_function_call;
+
+void record_alloc_history(int function_call, void *ptr);
 
 #endif // MALLOC_H

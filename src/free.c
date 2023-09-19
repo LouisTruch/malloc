@@ -13,6 +13,7 @@ static void dealloc_heap(t_heap **heap)
         (*heap)->next->prev = (*heap)->prev;
     if (munmap(to_dealloc, to_dealloc->total_size))
         ft_putstr_fd("Free: munmap error\n", 2);
+    logger(HEAP_DEALLOC);
 }
 
 static void defrag_blocks(t_heap **heap, t_block **block)
@@ -24,6 +25,7 @@ static void defrag_blocks(t_heap **heap, t_block **block)
         if ((*block)->next)
             (*block)->next->prev = (*block);
         (*heap)->block_count--;
+        logger(MEM_DEFRAG);
     }
     if ((*block)->prev && (*block)->prev->freed)
         defrag_blocks(heap, &(*block)->prev);
@@ -32,6 +34,7 @@ static void defrag_blocks(t_heap **heap, t_block **block)
 static void free_tiny_small(t_heap **heap, t_block **block)
 {
     (*block)->freed = true;
+    logger(BLOCK_FREED);
 
     if (((*block)->prev && (*block)->prev->freed) || ((*block)->next && (*block)->next->freed))
         defrag_blocks(heap, block);
@@ -69,6 +72,11 @@ void free(void *ptr)
         }
         heap = heap->next;
     }
+
+#ifdef HISTORY
+    record_alloc_history(FREE, ptr);
+#endif
+
     pthread_mutex_unlock(&g_mutex);
     ft_putstr_fd("Free: invalid pointer\n", 2);
 }

@@ -2,9 +2,11 @@
 
 int main()
 {
-    char *addr = malloc(10);
-    (void)addr;
-    show_alloc_mem_hex();
+    for (int i = 0; i < 100; i++)
+    {
+        char *addr = malloc(10);
+        addr[0] = 'z';
+    }
 
     return 0;
 }

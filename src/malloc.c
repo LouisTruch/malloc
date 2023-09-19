@@ -11,6 +11,7 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
         ft_putstr_fd("Malloc: Mmap fail\n", 2);
         return NULL;
     }
+    logger(HEAP_ALLOC);
     new_heap->arena_size = LARGE;
     new_heap->total_size = asked_size + sizeof(t_heap) + sizeof(t_block);
     new_heap->block_count = 1;
@@ -23,6 +24,7 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
         new_heap->next = NULL;
         new_heap->prev = NULL;
         *heap = new_heap;
+        logger(BLOCK_CREATION);
         return ((void *)new_heap->block + sizeof(t_block));
     }
     t_heap *lst = *heap, *last = NULL;
@@ -34,6 +36,7 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
     last->next = new_heap;
     new_heap->prev = last;
     new_heap->next = NULL;
+    logger(BLOCK_CREATION);
     return ((void *)new_heap + sizeof(t_heap) + sizeof(t_block));
 }
 
@@ -65,6 +68,7 @@ static void divide_block(t_heap **heap, t_block **found_block, const size_t old_
         new_block->freed = true;
         new_block->size = old_block_size - (*found_block)->size;
         (*heap)->block_count++;
+        logger(BLOCK_DIVISION);
     }
 }
 
@@ -86,6 +90,7 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
     if (search_blocks(*heap, asked_size))
     {
         t_block *found_block = find_free_block(*heap, asked_size);
+        logger(BLOCK_ATTRIBUTION);
         size_t old_block_size = found_block->size;
         found_block->size = asked_size + sizeof(t_block);
         found_block->freed = false;
@@ -104,6 +109,7 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
             (*heap)->block->freed = false;
             (*heap)->block->size = asked_size + sizeof(t_block);
             (*heap)->free_space -= (*heap)->block->size;
+            logger(BLOCK_CREATION);
             return ((void *)(*heap)->block + sizeof(t_block));
         }
 
@@ -122,6 +128,7 @@ static void *alloc_block(t_heap **heap, const size_t asked_size)
         new_block->freed = false;
         new_block->size = asked_size + sizeof(t_block);
         (*heap)->free_space -= new_block->size;
+        logger(BLOCK_CREATION);
         return ((void *)new_block + sizeof(t_block));
     }
     return NULL;
@@ -145,6 +152,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
             ft_putstr_fd("Malloc: Mmap fail\n", 2);
             return NULL;
         }
+        logger(HEAP_ALLOC);
         if (last)
             last->next = lst_heap;
         lst_heap->prev = last;
@@ -174,6 +182,11 @@ void *malloc(size_t size)
         ptr = alloc_tiny_small(&g_heap, SMALL_ARENA, size, SMALL);
     else
         ptr = alloc_large(&g_heap, size);
+
+#ifdef HISTORY
+    record_alloc_history(ALLOC, ptr);
+#endif
+
     pthread_mutex_unlock(&g_mutex);
     return ptr;
 }

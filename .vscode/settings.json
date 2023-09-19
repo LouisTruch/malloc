@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "malloc.h": "c",
-        "random": "c"
+        "random": "c",
+        "*.tcc": "c",
+        "cstdlib": "c",
+        "memory": "c",
+        "new": "c"
     }
 }
