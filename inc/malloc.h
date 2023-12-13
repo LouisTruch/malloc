@@ -1,10 +1,10 @@
 #ifndef MALLOC_H
 #define MALLOC_H
 
+#include <pthread.h> // mutex
+#include <stdbool.h>
 #include <sys/mman.h> // mmap() munmap()
 #include <unistd.h>   // getpagesize()
-#include <stdbool.h>
-#include <pthread.h> // mutex
 
 #define PAGE_SIZE getpagesize()
 #define TINY_ARENA (PAGE_SIZE * 4)
@@ -63,7 +63,7 @@ void show_alloc_mem_hex(void);
 #define B_HEXL "0123456789abcdef"
 #define B_HEXU "0123456789ABCDEF"
 
-int ft_printf(const char *format, ...);
+int ft_dprintf(int fd, const char *format, ...);
 size_t ft_strlen(const char *s);
 void *ft_memmove(void *dest, const void *src, size_t n);
 void ft_putstr_fd(char *s, int fd);
@@ -71,7 +71,7 @@ void ft_putstr_fd(char *s, int fd);
 // Bonus logger
 #include <stdlib.h> // getenv()
 
-#define LOGGER_ENV_VAR "MY_MALLOC_LOG"
+#define LOGGER_ENV_VAR "MALLOC_LOG"
 
 typedef enum e_logger_state
 {
@@ -94,10 +94,10 @@ typedef enum e_log
 void logger(int action);
 
 // Bonus history
-#include <fcntl.h> // open()
 #include <errno.h> // open() errno
+#include <fcntl.h> // open()
 
-#define HISTORY_FILEPATH "./alloc_history"
+#define HISTORY_FILEPATH "./alloc_history.txt"
 
 typedef enum e_function_call
 {

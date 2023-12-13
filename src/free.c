@@ -66,16 +66,15 @@ void free(void *ptr)
                 else
                     free_tiny_small(&heap, &block);
                 pthread_mutex_unlock(&g_mutex);
+#ifdef HISTORY
+                record_alloc_history(FREE, ptr);
+#endif
                 return;
             }
             block = block->next;
         }
         heap = heap->next;
     }
-
-#ifdef HISTORY
-    record_alloc_history(FREE, ptr);
-#endif
 
     pthread_mutex_unlock(&g_mutex);
     ft_putstr_fd("Free: invalid pointer\n", 2);

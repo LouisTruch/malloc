@@ -1,109 +1,109 @@
 #include "../inc/malloc.h"
 
-static int putchar_cnt(char c, int count)
+static int putchar_cnt_fd(char c, int count, int fd)
 {
-    write(1, &c, 1);
+    write(fd, &c, 1);
     count++;
     return (count);
 }
 
-static int putstr_cnt(char *s, int count)
+static int putstr_cnt_fd(char *s, int count, int fd)
 {
     if (!s)
     {
-        count = putstr_cnt("(null)", count);
+        count = putstr_cnt_fd("(null)", count, fd);
         return (count);
     }
     while (*s)
     {
-        write(1, s, 1);
+        write(fd, s, 1);
         s++;
         count++;
     }
     return (count);
 }
 
-static int basewrite_cnt(long long nb, char *base, int count)
+static int basewrite_cnt_fd(long long nb, char *base, int count, int fd)
 {
-    write(1, &base[nb], 1);
+    write(fd, &base[nb], 1);
     count++;
     return (count);
 }
 
-static int putnbrbase_cnt(long long nb, char *base, int count)
+static int putnbrbase_cnt_fd(long long nb, char *base, int count, int fd)
 {
     int base_l;
 
     base_l = ft_strlen(base);
     if (nb < 0)
     {
-        count = putchar_cnt('-', count);
+        count = putchar_cnt_fd('-', count, fd);
         nb *= -1;
     }
     if (nb < base_l)
-        count = basewrite_cnt(nb, base, count);
+        count = basewrite_cnt_fd(nb, base, count, fd);
     else
     {
-        count = putnbrbase_cnt(nb / base_l, base, count);
-        count = basewrite_cnt(nb % base_l, base, count);
+        count = putnbrbase_cnt_fd(nb / base_l, base, count, fd);
+        count = basewrite_cnt_fd(nb % base_l, base, count, fd);
     }
     return (count);
 }
 
-static int putunbrbase_cnt(unsigned long long nb, char *base, int count)
+static int putunbrbase_cnt_fd(unsigned long long nb, char *base, int count, int fd)
 {
     unsigned long long base_l;
 
     base_l = ft_strlen(base);
     if (nb < base_l)
-        count = basewrite_cnt(nb, base, count);
+        count = basewrite_cnt_fd(nb, base, count, fd);
     else
     {
-        count = putnbrbase_cnt(nb / base_l, base, count);
-        count = basewrite_cnt(nb % base_l, base, count);
+        count = putnbrbase_cnt_fd(nb / base_l, base, count, fd);
+        count = basewrite_cnt_fd(nb % base_l, base, count, fd);
     }
     return (count);
 }
 
-static int manage_arg_p(unsigned long nb, int count)
+static int manage_arg_p_fd(unsigned long nb, int count, int fd)
 {
     if (nb == 0)
-        count = putstr_cnt("(nil)", count);
+        count = putstr_cnt_fd("(nil)", count, fd);
     else
     {
-        count = putstr_cnt("0x", count);
-        count = putunbrbase_cnt(nb, B_HEXL, count);
+        count = putstr_cnt_fd("0x", count, fd);
+        count = putunbrbase_cnt_fd(nb, B_HEXL, count, fd);
     }
     return (count);
 }
 
-static int to_convert(char f, va_list args, int count)
+static int to_convert_fd(char f, va_list args, int count, int fd)
 {
     if (f == 'c')
-        count = putchar_cnt(va_arg(args, int), count);
+        count = putchar_cnt_fd(va_arg(args, int), count, fd);
     else if (f == 's')
-        count = putstr_cnt(va_arg(args, char *), count);
+        count = putstr_cnt_fd(va_arg(args, char *), count, fd);
     else if (f == 'p')
-        count = manage_arg_p(va_arg(args, unsigned long long), count);
+        count = manage_arg_p_fd(va_arg(args, unsigned long long), count, fd);
     else if (f == 'd' || f == 'i')
-        count = putnbrbase_cnt(va_arg(args, int), B_DEC, count);
+        count = putnbrbase_cnt_fd(va_arg(args, int), B_DEC, count, fd);
     else if (f == 'u')
-        count = putunbrbase_cnt(va_arg(args, unsigned int), B_DEC, count);
+        count = putunbrbase_cnt_fd(va_arg(args, unsigned int), B_DEC, count, fd);
     else if (f == 'x')
-        count = putnbrbase_cnt(va_arg(args, unsigned int), B_HEXL, count);
+        count = putnbrbase_cnt_fd(va_arg(args, unsigned int), B_HEXL, count, fd);
     else if (f == 'X')
-        count = putnbrbase_cnt(va_arg(args, unsigned int), B_HEXU, count);
+        count = putnbrbase_cnt_fd(va_arg(args, unsigned int), B_HEXU, count, fd);
     else if (f == '%')
-        count = putchar_cnt('%', count);
+        count = putchar_cnt_fd('%', count, fd);
     else
     {
-        count = putchar_cnt('%', count);
-        count = putchar_cnt(f, count);
+        count = putchar_cnt_fd('%', count, fd);
+        count = putchar_cnt_fd(f, count, fd);
     }
     return (count);
 }
 
-int ft_printf(const char *format, ...)
+int ft_dprintf(int fd, const char *format, ...)
 {
     va_list args;
     int count;
@@ -116,11 +116,11 @@ int ft_printf(const char *format, ...)
     {
         if (*format == '%')
         {
-            count = to_convert(*(format + 1), args, count);
+            count = to_convert_fd(*(format + 1), args, count, fd);
             format++;
         }
         else
-            count = putchar_cnt(*format, count);
+            count = putchar_cnt_fd(*format, count, fd);
         format++;
     }
     va_end(args);

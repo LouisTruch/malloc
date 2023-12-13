@@ -6,6 +6,7 @@ int main()
     {
         char *addr = malloc(10);
         addr[0] = 'z';
+        free(addr);
     }
 
     return 0;

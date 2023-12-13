@@ -5,7 +5,8 @@ pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void *alloc_large(t_heap **heap, const size_t asked_size)
 {
-    t_heap *new_heap = mmap(NULL, asked_size + sizeof(t_heap) + sizeof(t_block), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    t_heap *new_heap = mmap(NULL, asked_size + sizeof(t_heap) + sizeof(t_block), PROT_READ | PROT_WRITE,
+                            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (new_heap == MAP_FAILED)
     {
         ft_putstr_fd("Malloc: Mmap fail\n", 2);
@@ -140,14 +141,16 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
     t_heap *last = NULL;
     while (lst_heap)
     {
-        if ((int)lst_heap->arena_size == arena_range && (search_blocks(lst_heap, asked_size) || search_free_space(lst_heap, asked_size)))
+        if ((int)lst_heap->arena_size == arena_range &&
+            (search_blocks(lst_heap, asked_size) || search_free_space(lst_heap, asked_size)))
             break;
         last = lst_heap;
         lst_heap = lst_heap->next;
     }
     if (!lst_heap)
     {
-        if ((lst_heap = mmap(NULL, arena_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED)
+        if ((lst_heap = mmap(NULL, arena_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) ==
+            MAP_FAILED)
         {
             ft_putstr_fd("Malloc: Mmap fail\n", 2);
             return NULL;

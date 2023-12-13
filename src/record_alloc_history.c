@@ -2,17 +2,17 @@
 
 static void record_malloc(t_block *block, int fd)
 {
-    (void)block;
-    ft_putstr_fd("Allocation: size: ", fd);
-    ft_putstr_fd("10\n", fd);
+    ft_dprintf(fd, "Allocation address: %X Size: %i\n", block, block->size);
 }
 
 static void record_free(t_block *block, int fd)
 {
-    (void)block;
-    ft_putstr_fd("Free: ", fd);
+    // ft_dprintf(fd, "Allocation: Size: %i", block->size);
+    // ft_putstr_fd("Free: \n", fd);
+    ft_dprintf(fd, "Free address: %X\n", block);
 }
 
+// Must compile with -DHISTORY to enable this function
 void record_alloc_history(int function_call, void *ptr)
 {
     if (!ptr)
