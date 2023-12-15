@@ -3,14 +3,17 @@
 static void dealloc_heap(t_heap **heap)
 {
     t_heap *to_dealloc = *heap;
-    if (!(*heap)->prev)
+    if (!to_dealloc->prev)
     {
         g_heap = (*heap)->next;
-        return;
+        if (!g_heap)
+            goto munmap_call;
+        // return;
     }
     (*heap)->prev->next = (*heap)->next;
     if ((*heap)->next)
         (*heap)->next->prev = (*heap)->prev;
+munmap_call:
     if (munmap(to_dealloc, to_dealloc->total_size))
         ft_putstr_fd("Free: munmap error\n", 2);
     logger(HEAP_DEALLOC);

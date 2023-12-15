@@ -40,6 +40,8 @@ void show_alloc_mem(void)
     t_heap *heap = g_heap;
 
     size_t total_alloc = 0;
+
+    pthread_mutex_lock(&g_mutex);
     while (heap)
     {
         print_heap_info(heap);
@@ -47,4 +49,5 @@ void show_alloc_mem(void)
         heap = heap->next;
     }
     ft_dprintf(1, "Total : %i bytes\n", total_alloc);
+    pthread_mutex_unlock(&g_mutex);
 }

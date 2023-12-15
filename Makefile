@@ -24,7 +24,7 @@ HISTORY_FILEPATH = alloc_history.txt
 
 CC = gcc
 
-FLAGS_CC = -Wall -Wextra -Werror -fPIC -DHISTORY
+FLAGS_CC = -Wall -Wextra -Werror -fPIC
 FLAGS_TEST = -Wall -Wextra -Werror
 FLAGS_LIB = -shared
 
