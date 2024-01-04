@@ -1,14 +1,29 @@
 #include "../inc/malloc.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
-int main()
+void print(char *s)
 {
-    char *test = malloc(10);
-    test[0] = 2;
-    void *tg = malloc(100001);
-    // free(test);
-    test = malloc(100000);
-    heap_info();
-    free(test);
+    write(1, s, strlen(s));
+}
 
-    return 0;
+int main(void)
+{
+    int i;
+    char *addr;
+
+    i = 0;
+    // while (i < 1024)
+    // {
+    addr = (char *)malloc(16);
+    addr[15] = 0;
+    for (int i = 0; i < 15; i++)
+        addr[i] = '1';
+    ptr_hex_dump(addr);
+    // free(addr);
+    // i++;
+    // }
+    // heap_info();
+    return (0);
 }

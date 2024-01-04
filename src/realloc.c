@@ -38,8 +38,9 @@ void *realloc(void *ptr, size_t size)
         pthread_mutex_unlock(&g_mutex);
         return ((void *)block + sizeof(t_block));
     }
-
+    pthread_mutex_unlock(&g_mutex);
     void *res_ptr = malloc(size);
+    pthread_mutex_lock(&g_mutex);
     if (block->size > size)
         ft_memmove(res_ptr, ptr, size);
     else

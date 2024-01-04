@@ -38,7 +38,7 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
     new_heap->prev = last;
     new_heap->next = NULL;
     logger(BLOCK_CREATION);
-    return ((void *)new_heap + sizeof(t_heap) + sizeof(t_block));
+    return ((void *)new_heap->block + sizeof(t_block));
 }
 
 static bool search_free_space(t_heap *heap, const size_t asked_size)
@@ -155,6 +155,7 @@ static void *alloc_tiny_small(t_heap **heap, const size_t arena_size, const size
             ft_putstr_fd("Malloc: Mmap fail\n", 2);
             return NULL;
         }
+        ft_bzero(lst_heap, sizeof(t_heap));
         logger(HEAP_ALLOC);
         if (last)
             last->next = lst_heap;

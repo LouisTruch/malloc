@@ -46,3 +46,18 @@ void ft_putstr_fd(char *s, int fd)
     write(fd, s, ft_strlen(s));
     return;
 }
+
+void ft_bzero(void *s, size_t n)
+{
+    char *casted;
+    size_t i;
+
+    casted = (char *)s;
+    i = 0;
+    while (n > i)
+    {
+        casted[i] = '\0';
+        i++;
+    }
+    return;
+}
