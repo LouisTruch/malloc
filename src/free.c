@@ -55,28 +55,26 @@ void free(void *ptr)
     t_heap *heap = g_heap;
     t_block *block = NULL;
     pthread_mutex_lock(&g_mutex);
-    while (heap)
+    for (t_heap *current_heap = g_heap; current_heap; current_heap = current_heap->next)
     {
         // Can opti this cause of heap address' range
-        // and don't need to iter on every block of every heap
-        block = heap->block;
-        while (block)
+        // so we don't need to iter on every block of every heap
+        block = current_heap->block;
+        for (t_block *current_block = heap->block; current_block; current_block = current_block->next)
         {
             if (block == ptr)
             {
-                if (heap->arena_size == LARGE)
-                    dealloc_heap(&heap);
+                if (current_heap->arena_size == LARGE)
+                    dealloc_heap(&current_heap);
                 else
-                    free_tiny_small(&heap, &block);
+                    free_tiny_small(&current_heap, &block);
                 pthread_mutex_unlock(&g_mutex);
 #ifdef HISTORY
                 record_alloc_history(FREE, ptr);
 #endif
                 return;
             }
-            block = block->next;
         }
-        heap = heap->next;
     }
 
     pthread_mutex_unlock(&g_mutex);

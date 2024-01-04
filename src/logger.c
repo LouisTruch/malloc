@@ -1,6 +1,7 @@
 #include "../inc/malloc.h"
+#include <sys/types.h>
 
-static int check_env_var()
+static u_int8_t check_env_var()
 {
     if (getenv(LOGGER_ENV_VAR))
     {
@@ -12,7 +13,7 @@ static int check_env_var()
 
 void logger(int action)
 {
-    static int logger_state = UNDEFINED;
+    static u_int8_t logger_state = UNDEFINED;
     if (logger_state == DISABLED)
         return;
     if (logger_state == UNDEFINED)

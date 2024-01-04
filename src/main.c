@@ -2,16 +2,13 @@
 
 int main()
 {
-    for (int i = 0; i < 1; i++)
-    {
-        char *addr = malloc(100);
-        void *test = malloc(100000);
-        // (void)test;
-        addr[0] = 'z';
-        // free(addr);
-        free(test);
-    }
-    
+    char *test = malloc(10);
+    test[0] = 2;
+    void *tg = malloc(100001);
+    // free(test);
+    test = malloc(100000);
+    heap_info();
+    free(test);
 
     return 0;
 }

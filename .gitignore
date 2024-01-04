@@ -3,5 +3,7 @@
 *.a
 a.out
 malloc
+malloc_test
+testm
 test0
 alloc_history
