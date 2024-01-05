@@ -1,10 +1,16 @@
 #include "../inc/malloc.h"
+#include <sys/resource.h>
 
 t_heap *g_heap = NULL;
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void *alloc_large(t_heap **heap, const size_t asked_size)
 {
+    struct rlimit rlimit;
+    getrlimit(RLIMIT_AS, &rlimit);
+    if (asked_size + sizeof(t_heap) + sizeof(t_block) > rlimit.rlim_max)
+        return NULL;
+
     t_heap *new_heap = mmap(NULL, asked_size + sizeof(t_heap) + sizeof(t_block), PROT_READ | PROT_WRITE,
                             MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (new_heap == MAP_FAILED)
@@ -12,6 +18,7 @@ static void *alloc_large(t_heap **heap, const size_t asked_size)
         ft_putstr_fd("Malloc: Mmap fail\n", 2);
         return NULL;
     }
+    ft_bzero(new_heap, sizeof(t_heap));
     logger(HEAP_ALLOC);
     new_heap->arena_size = LARGE;
     new_heap->total_size = asked_size + sizeof(t_heap) + sizeof(t_block);

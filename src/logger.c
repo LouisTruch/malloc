@@ -1,5 +1,7 @@
 #include "../inc/malloc.h"
+#include <sys/mman.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 static u_int8_t check_env_var()
 {

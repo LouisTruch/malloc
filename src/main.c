@@ -14,16 +14,13 @@ int main(void)
     char *addr;
 
     i = 0;
-    // while (i < 1024)
-    // {
-    addr = (char *)malloc(16);
-    addr[15] = 0;
-    for (int i = 0; i < 15; i++)
-        addr[i] = '1';
-    ptr_hex_dump(addr);
-    // free(addr);
-    // i++;
-    // }
+    while (i < 1024)
+    {
+        addr = (char *)malloc(16);
+        addr[15] = 0;
+        free(addr);
+        i++;
+    }
     // heap_info();
     return (0);
 }
