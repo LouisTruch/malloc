@@ -6,8 +6,8 @@ PATH_INC = inc
 PATH_OBJ = obj
 PATH_SRC = src
 
-SRC += malloc.c free.c realloc.c utils.c lib.c ft_dprintf.c show_alloc_mem.c logger.c record_alloc_history.c heap_info.c ptr_hex_dump.c
-SRC_TEST += main.c malloc.c free.c realloc.c utils.c lib.c ft_dprintf.c show_alloc_mem.c logger.c record_alloc_history.c heap_info.c ptr_hex_dump.c
+SRC += malloc.c heap.c chunk.c free.c realloc.c utils.c lib.c ft_dprintf.c show_alloc_mem.c logger.c record_alloc_history.c heap_info.c ptr_hex_dump.c
+SRC_TEST += main.c malloc.c heap.c chunk.c free.c realloc.c utils.c lib.c ft_dprintf.c show_alloc_mem.c logger.c record_alloc_history.c heap_info.c ptr_hex_dump.c
 
 OBJ = $(SRC:%.c=$(PATH_OBJ)/%.o)
 OBJ_TEST = $(SRC_TEST:%.c=$(PATH_OBJ)/%.o)
@@ -24,7 +24,7 @@ HISTORY_FILEPATH = alloc_history.txt
 
 CC = gcc
 
-FLAGS_CC = -Wall -Wextra -fPIC
+FLAGS_CC = -Wall -Wextra -Werror -fPIC
 FLAGS_TEST = -Wall -Wextra -Werror
 FLAGS_LIB = -shared
 

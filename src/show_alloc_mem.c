@@ -1,6 +1,6 @@
 #include "../inc/malloc.h"
 
-static size_t print_blocks(t_block *block)
+static size_t print_blocks(t_chunk *block)
 {
     size_t total_alloc_block = 0;
     while (block)
@@ -18,34 +18,25 @@ static size_t print_blocks(t_block *block)
 
 void print_heap_info(t_heap *heap)
 {
-    switch (heap->arena_size)
-    {
-    case TINY:
-        ft_dprintf(1, "TINY : ");
-        break;
-
-    case SMALL:
-        ft_dprintf(1, "SMALL : ");
-        break;
-
-    case LARGE:
-        ft_dprintf(1, "LARGE : ");
-        break;
-    }
+    if (heap->total_size == TINY_ARENA)
+        ft_putstr_fd("TINY", 1);
+    else if (heap->total_size == SMALL_ARENA)
+        ft_putstr_fd("SMALL", 1);
+    else
+        ft_putstr_fd("LARGE", 1);
     ft_dprintf(1, "%p - %p\n", heap, heap + heap->total_size);
 }
 
 void show_alloc_mem(void)
 {
     t_heap *heap = g_heap;
-
     size_t total_alloc = 0;
 
     pthread_mutex_lock(&g_mutex);
     while (heap)
     {
         print_heap_info(heap);
-        total_alloc += print_blocks(heap->block);
+        total_alloc += print_blocks(heap->chunk);
         heap = heap->next;
     }
     ft_dprintf(1, "Total : %i bytes\n", total_alloc);

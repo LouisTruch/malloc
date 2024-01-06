@@ -3,43 +3,42 @@
 
 #include <pthread.h> // mutex
 #include <stdbool.h>
-#include <sys/mman.h> // mmap() munmap()
-#include <unistd.h>   // getpagesize()
 
+#include <unistd.h> // getpagesize()
 #define PAGE_SIZE getpagesize()
-#define TINY_ARENA (PAGE_SIZE * 4)                          // 16384 bytes
-#define TINY_ALLOC (TINY_ARENA / (128 + sizeof(t_block)))   // Min 128 alloc/Tiny of 96 bytes max
-#define SMALL_ARENA (PAGE_SIZE * 64)                        // 262144 bytes
-#define SMALL_ALLOC (SMALL_ARENA / (128 + sizeof(t_block))) // Min 160 alloc/Small of 1632 bytes max
+#define TINY_ARENA (size_t)(PAGE_SIZE * 4)                          // 16384 bytes
+#define TINY_ALLOC (size_t)(TINY_ARENA / (128 + sizeof(t_chunk)))   // Min 128 alloc/Tiny of 96 bytes max
+#define SMALL_ARENA (size_t)(PAGE_SIZE * 64)                        // 262144 bytes
+#define SMALL_ALLOC (size_t)(SMALL_ARENA / (128 + sizeof(t_chunk))) // Min 160 alloc/Small of 1632 bytes max
 
 #define MEM_ALLIGN 16
-#define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
+// #define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
 
-typedef enum e_arena_size
-{
-    TINY,
-    SMALL,
-    LARGE
-} t_arena_size;
+// typedef enum e_arena_size
+// {
+//     TINY,
+//     SMALL,
+//     LARGE
+// } t_arena_size;
 
 typedef struct s_heap
 {
     struct s_heap *next, *prev;
-    struct s_block *block;
-    t_arena_size arena_size;
+    struct s_chunk *chunk;
+    // t_arena_size arena_size;
     size_t total_size;
     size_t free_space;
-    size_t block_count;
+    size_t chunk_count;
 } t_heap;
 
 extern t_heap *g_heap;
 
-typedef struct s_block
+typedef struct s_chunk
 {
-    struct s_block *next, *prev;
+    struct s_chunk *next, *prev;
     size_t size;
     bool freed;
-} t_block;
+} t_chunk;
 
 extern pthread_mutex_t g_mutex;
 
@@ -47,8 +46,21 @@ void *malloc(size_t size);
 void *realloc(void *ptr, size_t size);
 void free(void *ptr);
 
+// Heap
+t_heap *allocate_new_heap(const size_t arena_size);
+t_heap *addback_new_heap(const size_t arena_size);
+bool check_heap_free_space(t_heap *heap, const size_t asked_size);
+t_heap *search_heap(const size_t size, const size_t arena_size);
+t_heap *get_last_heap(void);
+
+// Chunk
+void *create_chunk(t_heap **heap, const size_t asked_size);
+bool search_chunks(t_heap *heap, const size_t asked_size);
+void divide_chunk(t_heap **heap, t_chunk **found_block, const size_t old_block_size);
+void *find_free_chunk(t_heap *heap, const size_t asked_size);
+
 // Utils
-int get_arena_size(size_t size);
+// int get_arena_size(size_t size);
 size_t align_mem(size_t size);
 
 // Log
@@ -70,8 +82,6 @@ void ft_putstr_fd(char *s, int fd);
 void ft_bzero(void *s, size_t n);
 
 // Bonus logger
-#include <stdlib.h> // getenv()
-
 #define LOGGER_ENV_VAR "MALLOC_LOG"
 
 typedef enum e_logger_state

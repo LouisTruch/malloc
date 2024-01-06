@@ -1,12 +1,5 @@
 #include "../inc/malloc.h"
-
-static int count_heap(void)
-{
-    int nb_heap = 0;
-    for (t_heap *heap = g_heap; heap; heap = heap->next)
-        nb_heap++;
-    return nb_heap;
-}
+#include <sys/mman.h> // munmap()
 
 static void dealloc_heap(t_heap **heap)
 {
@@ -29,7 +22,7 @@ munmap_call:
     logger(HEAP_DEALLOC);
 }
 
-static void defrag_blocks(t_heap **heap, t_block **block)
+static void defrag_blocks(t_heap **heap, t_chunk **block)
 {
     if ((*block)->next && (*block)->next->freed)
     {
@@ -37,21 +30,21 @@ static void defrag_blocks(t_heap **heap, t_block **block)
         (*block)->next = (*block)->next->next;
         if ((*block)->next)
             (*block)->next->prev = (*block);
-        (*heap)->block_count--;
+        (*heap)->chunk_count--;
         logger(MEM_DEFRAG);
     }
     if ((*block)->prev && (*block)->prev->freed)
         defrag_blocks(heap, &(*block)->prev);
 }
 
-static void free_tiny_small(t_heap **heap, t_block **block)
+static void free_tiny_small(t_heap **heap, t_chunk **block)
 {
     (*block)->freed = true;
     logger(BLOCK_FREED);
 
     if (((*block)->prev && (*block)->prev->freed) || ((*block)->next && (*block)->next->freed))
         defrag_blocks(heap, block);
-    if ((*heap)->block_count == 1 && (*heap)->block->freed)
+    if ((*heap)->chunk_count == 1 && (*heap)->chunk->freed)
         dealloc_heap(heap);
 }
 
@@ -61,16 +54,16 @@ void free(void *ptr)
     if (!ptr)
         goto end;
 
-    ptr -= sizeof(t_block);
+    ptr -= sizeof(t_chunk);
     for (t_heap *current_heap = g_heap; current_heap; current_heap = current_heap->next)
     {
         // Can opti this cause of heap address' range
         // so we don't need to iter on every block of every heap
-        for (t_block *current_block = current_heap->block; current_block; current_block = current_block->next)
+        for (t_chunk *current_block = current_heap->chunk; current_block; current_block = current_block->next)
         {
             if (current_block == ptr)
             {
-                if (current_heap->arena_size == LARGE)
+                if (current_heap->total_size >= (size_t)SMALL_ARENA)
                     dealloc_heap(&current_heap);
                 else
                     free_tiny_small(&current_heap, &current_block);

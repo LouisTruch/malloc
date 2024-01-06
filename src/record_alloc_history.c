@@ -1,11 +1,11 @@
 #include "../inc/malloc.h"
 
-static void record_malloc(t_block *block, int fd)
+static void record_malloc(t_chunk *block, int fd)
 {
     ft_dprintf(fd, "Allocation address: %X Size: %i\n", block, block->size);
 }
 
-static void record_free(t_block *block, int fd)
+static void record_free(t_chunk *block, int fd)
 {
     // ft_dprintf(fd, "Allocation: Size: %i", block->size);
     // ft_putstr_fd("Free: \n", fd);
@@ -32,9 +32,9 @@ void record_alloc_history(int function_call, void *ptr)
     }
 
     if (function_call == ALLOC)
-        record_malloc((void *)ptr - sizeof(t_block), fd);
+        record_malloc((void *)ptr - sizeof(t_chunk), fd);
     else if (function_call == FREE)
-        record_free((void *)ptr - sizeof(t_block), fd);
+        record_free((void *)ptr - sizeof(t_chunk), fd);
 
     close(fd);
 }
