@@ -15,12 +15,12 @@ void divide_chunk(t_heap **heap, t_chunk **found_chunk, const size_t old_chunk_s
     }
 }
 
-void *find_free_chunk(t_heap *heap, const size_t asked_size)
+void *find_free_chunk(t_heap *heap, const size_t size)
 {
     t_chunk *chunk = heap->chunk;
     while (chunk)
     {
-        if (chunk->freed && chunk->size >= asked_size + sizeof(t_chunk))
+        if (chunk->freed && chunk->size >= size + sizeof(t_chunk))
             return chunk;
         chunk = chunk->next;
     }
@@ -28,35 +28,40 @@ void *find_free_chunk(t_heap *heap, const size_t asked_size)
     return NULL;
 }
 
-bool search_chunks(t_heap *heap, const size_t asked_size)
+bool search_chunks(t_heap *heap, const size_t size)
 {
     t_chunk *chunk = heap->chunk;
     while (chunk)
     {
-        if (chunk->freed && chunk->size >= asked_size + sizeof(t_chunk))
+        if (chunk->freed && chunk->size >= size + sizeof(t_chunk))
             return true;
         chunk = chunk->next;
     }
     return false;
 }
 
-void *create_chunk(t_heap **heap, const size_t asked_size)
+static t_chunk *check_freed_chunks(const size_t size)
 {
-    t_chunk *ret_chunk;
-    check_freed_chunks();
+    // for
+}
+
+void *create_chunk(t_heap **heap, const size_t size)
+{
+    t_chunk *ret_chunk = check_freed_chunks();
+    // check_freed_chunks();
     return ret_chunk;
-    if (search_chunks(*heap, asked_size))
+    if (search_chunks(*heap, size))
     {
-        t_chunk *found_chunk = find_free_chunk(*heap, asked_size);
+        t_chunk *found_chunk = find_free_chunk(*heap, size);
         // logger(BLOCK_ATTRIBUTION);
         size_t old_chunk_size = found_chunk->size;
-        found_chunk->size = asked_size + sizeof(t_chunk);
+        found_chunk->size = size + sizeof(t_chunk);
         found_chunk->freed = false;
         divide_chunk(heap, &found_chunk, old_chunk_size);
         return ((void *)found_chunk + sizeof(t_chunk));
     }
 
-    if (check_heap_free_space(*heap, asked_size))
+    if (check_heap_free_space(*heap, size))
     {
         if ((*heap)->chunk_count == 0)
         {
@@ -65,7 +70,7 @@ void *create_chunk(t_heap **heap, const size_t asked_size)
             (*heap)->chunk->next = NULL;
             (*heap)->chunk->prev = NULL;
             (*heap)->chunk->freed = false;
-            (*heap)->chunk->size = asked_size + sizeof(t_chunk);
+            (*heap)->chunk->size = size + sizeof(t_chunk);
             (*heap)->free_space -= (*heap)->chunk->size;
             // logger(BLOCK_CREATION);
             return ((void *)(*heap)->chunk + sizeof(t_chunk));
@@ -84,7 +89,7 @@ void *create_chunk(t_heap **heap, const size_t asked_size)
         new_chunk->next = NULL;
         new_chunk->prev = last_chunk;
         new_chunk->freed = false;
-        new_chunk->size = asked_size + sizeof(t_chunk);
+        new_chunk->size = size + sizeof(t_chunk);
         (*heap)->free_space -= new_chunk->size;
         // logger(BLOCK_CREATION);
         return ((void *)new_chunk + sizeof(t_chunk));
