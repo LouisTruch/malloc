@@ -1,17 +1,18 @@
 #include "../inc/malloc.h"
 
-static size_t print_blocks(t_chunk *block)
+static size_t print_blocks(t_chunk *chunk)
 {
     size_t total_alloc_block = 0;
-    while (block)
+    while (chunk)
     {
         if (1)
         {
-            ft_dprintf(1, "%p - %p : %i bytes freed %i\n", block, (void *)block + block->size, block->size,
-                       block->freed);
-            total_alloc_block += block->size;
+            ft_dprintf(1, "%p - %p : %i bytes freed %i\n", chunk, (void *)chunk + chunk->size, chunk->size,
+                       chunk->freed);
+            if (!chunk->freed)
+                total_alloc_block += chunk->size;
         }
-        block = block->next;
+        chunk = chunk->next;
     }
     return total_alloc_block;
 }
