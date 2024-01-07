@@ -55,7 +55,8 @@ t_heap *get_last_heap(void);
 
 // Chunk
 void *create_chunk(t_heap **heap, const size_t asked_size);
-bool search_chunks(t_heap *heap, const size_t asked_size);
+// bool search_chunks(t_heap *heap, const size_t asked_size);
+t_chunk *check_freed_chunks(t_heap **heap, const size_t size);
 void divide_chunk(t_heap **heap, t_chunk **found_block, const size_t old_block_size);
 void *find_free_chunk(t_heap *heap, const size_t asked_size);
 

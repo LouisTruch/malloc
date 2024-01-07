@@ -3,14 +3,15 @@ ifeq ($(HOSTTYPE),)
 endif
 
 PATH_INC = inc
-PATH_OBJ = obj
 PATH_SRC = src
+PATH_TEST = test
 
-SRC += malloc.c heap.c chunk.c free.c realloc.c utils.c lib.c ft_dprintf.c show_alloc_mem.c logger.c record_alloc_history.c heap_info.c ptr_hex_dump.c
-SRC_TEST += main.c malloc.c heap.c chunk.c free.c realloc.c utils.c lib.c ft_dprintf.c show_alloc_mem.c logger.c record_alloc_history.c heap_info.c ptr_hex_dump.c
+SRC += $(wildcard $(PATH_SRC)/*.c)
+SRC_TEST += $(wildcard $(PATH_TEST)/*.c)
+SRC_TEST += $(wildcard $(PATH_SRC)/*.c)
 
-OBJ = $(SRC:%.c=$(PATH_OBJ)/%.o)
-OBJ_TEST = $(SRC_TEST:%.c=$(PATH_OBJ)/%.o)
+OBJ = $(SRC:%.c=%.o)
+OBJ_TEST = $(SRC_TEST:%.c=%.o)
 
 # **************************************************************************** #
 # VARIABLES         														   #
@@ -32,6 +33,8 @@ FLAGS_LIB = -shared
 # COMMANDS  		    													   #
 # **************************************************************************** #
 
+%.o : %.c
+	$(CC) $(FLAGS_CC) -c $< -o $@
 
 all: $(NAME)
 

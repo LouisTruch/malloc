@@ -15,7 +15,6 @@ t_heap *addback_new_heap(const size_t heap_size)
     new_heap->next = NULL;
     new_heap->total_size = heap_size;
     new_heap->free_space = heap_size - sizeof(t_heap);
-    // new_heap->arena_size = get_arena_size(size);
     new_heap->chunk_count = 0;
     new_heap->chunk = NULL;
     if (!g_heap)
@@ -33,7 +32,7 @@ t_heap *allocate_new_heap(const size_t heap_size)
     }
     if (heap_size >= rlimit.rlim_max)
     {
-        ft_putstr_fd("Malloc: asked size is too big\n", 2);
+        ft_putstr_fd("Malloc: rlimit.rlim_max reached\n", 2);
         return NULL;
     }
 
@@ -62,7 +61,7 @@ t_heap *search_heap(const size_t size, const size_t heap_size)
     t_heap *heap = g_heap;
     for (; heap; heap = heap->next)
     {
-        if (heap->total_size == heap_size && (search_chunks(heap, size) || check_heap_free_space(heap, size)))
+        if (heap->total_size == heap_size && (check_freed_chunks(&heap, size) || check_heap_free_space(heap, size)))
             return heap;
     }
     return heap;

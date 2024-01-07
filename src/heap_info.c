@@ -31,7 +31,8 @@ void heap_info(void)
             else
                 ft_putstr_fd("no", 1);
             ft_dprintf(1, "%s\n", NC);
-            total_alloc += current_block->size;
+            if (!current_block->freed)
+                total_alloc += current_block->size;
         }
     }
     ft_dprintf(1, "Total: %i bytes\n", total_alloc);
