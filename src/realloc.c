@@ -22,11 +22,11 @@ void *realloc(void *ptr, size_t size)
     if (!ptr || !size)
         return (malloc(size));
 
+    pthread_mutex_lock(&g_mutex);
     t_heap *heap = g_heap;
     t_chunk *block;
     ptr -= sizeof(t_chunk);
 
-    pthread_mutex_lock(&g_mutex);
     if (!(block = is_valid_ptr(ptr, &heap)))
     {
         pthread_mutex_unlock(&g_mutex);

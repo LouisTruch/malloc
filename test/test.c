@@ -1,12 +1,11 @@
 #include "../inc/malloc.h"
-#include <string.h> // strcmp()
 
 static void print_category(char *category)
 {
-    for (size_t i = 0; i < 50 - strlen(category); i++)
+    for (size_t i = 0; i < 50 - ft_strlen(category); i++)
         ft_putstr_fd("-", 1);
     ft_putstr_fd(category, 1);
-    for (size_t i = 0; i < 75 - strlen(category); i++)
+    for (size_t i = 0; i < 75 - ft_strlen(category); i++)
         ft_putstr_fd("-", 1);
     ft_putstr_fd("\n", 1);
 }
@@ -71,6 +70,18 @@ static void overhead_test(void)
     }
 }
 
+// This test should always segfault
+static void free_test(void)
+{
+    ft_putstr_fd("Free test...\n", 1);
+    char *ptr0 = malloc(10000);
+    ptr0[0] = 42;
+    heap_info();
+    free(ptr0);
+    ptr0[0] = 42;
+    heap_info();
+}
+
 static void page_caching_test(void)
 {
     ft_putstr_fd("Page caching test...\n", 1);
@@ -89,6 +100,7 @@ static void page_caching_test(void)
 }
 
 #define M (1024 * 1024)
+#include <string.h>
 
 static void realloc_test(void)
 {
@@ -212,29 +224,50 @@ static void defrag_test(void)
 static void ptr_hex_dump_test(void)
 {
     ft_putstr_fd("Ptr hex dump test...\n", 1);
-    //
+    char *p0 = malloc(100);
+    char *p1 = malloc(101);
+    char *p2 = malloc(100);
+    ft_memmove(p1,
+               "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0",
+               100);
+    ft_dprintf(1, "%s\n", p0);
+    heap_info();
+    ptr_hex_dump(p1);
+    free(p0);
+    free(p1);
+    free(p2);
+}
+
+static void random_test(void)
+{
+    char *p0 = malloc(1);
+    free(p0);
 }
 
 int main(int argc, char **argv)
 {
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "basic") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "basic") == 0))
         basic_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "overhead") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "overhead") == 0))
         overhead_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "cache") == 0))
+    if ((argc == 2 && ft_strcmp(argv[1], "free") == 0))
+        free_test();
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "cache") == 0))
         page_caching_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "realloc") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "realloc") == 0))
         realloc_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "showalloc") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "showalloc") == 0))
         show_alloc_mem_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "align") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "align") == 0))
         alignement_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "advanced") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "advanced") == 0))
         advanced_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "defrag") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "defrag") == 0))
         defrag_test();
-    if (argc == 1 || (argc == 2 && strcmp(argv[1], "hexdump") == 0))
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "hex") == 0))
         ptr_hex_dump_test();
+    if (argc == 1 || (argc == 2 && ft_strcmp(argv[1], "random") == 0))
+        random_test();
 
     return 0;
-};
+}

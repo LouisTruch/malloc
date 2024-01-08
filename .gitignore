@@ -4,6 +4,6 @@
 a.out
 malloc
 malloc_test
-testm
-test0
+test
+test*
 alloc_history

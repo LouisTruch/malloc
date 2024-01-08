@@ -69,7 +69,7 @@ void show_alloc_mem(void);
 void print_heap_info(t_heap *heap);
 void show_alloc_mem_hex(void);
 
-// Lib
+// Lib move this another .h
 #include <stdarg.h>
 
 #define B_DEC "0123456789"
@@ -81,30 +81,37 @@ size_t ft_strlen(const char *s);
 void *ft_memmove(void *dest, const void *src, size_t n);
 void ft_putstr_fd(char *s, int fd);
 void ft_bzero(void *s, size_t n);
+int ft_strcmp(const char *s1, const char *s2);
+//
 
 // Env variable
 #define LOGGER_ENV_VAR "MALLOC_LOGGER"
+#define LOGGER_LEVEL_ENV_VAR "MALLOC_LOGGER_LEVEL"
 #define NB_PAGE_CACHED_ENV_VAR "MALLOC_PAGE_CACHED"
 
 typedef enum e_logger_state
 {
     UNDEFINED,
     DISABLED,
-    ENABLED
+    BASIC,
+    ADVANCED,
+    FULL,
 } t_logger_state;
 
-typedef enum e_log
+typedef enum e_log_action
 {
+    CALL_MALLOC,
+    CALL_FREE,
     HEAP_ALLOC,
     HEAP_DEALLOC,
-    BLOCK_CREATION,
-    BLOCK_ATTRIBUTION,
-    BLOCK_FREED,
-    BLOCK_DIVISION,
+    CHUNK_CREATION,
+    CHUNK_ATTRIBUTION,
+    CHUNK_FREED,
+    CHUNK_DIVISION,
     MEM_DEFRAG,
-} t_log;
+} t_action_log;
 
-void logger(int action);
+void logger(enum e_log_action action, void *ptr);
 
 // Record alloc history
 #include <errno.h> // open() errno

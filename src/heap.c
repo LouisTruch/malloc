@@ -42,13 +42,13 @@ t_heap *allocate_new_heap(const size_t heap_size)
         return NULL;
     }
 
-    // logger()
     t_heap *new_heap = mmap(NULL, heap_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (new_heap == MAP_FAILED)
     {
         ft_putstr_fd("Malloc: mmap() failed\n", 2);
         return NULL;
     }
+    logger(HEAP_ALLOC, new_heap);
     return new_heap;
 }
 

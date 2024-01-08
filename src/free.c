@@ -12,7 +12,6 @@ void reset_chunk(t_heap **heap_to_dealloc)
 
 static void dealloc_heap(t_heap **heap)
 {
-    // Need keep at least 1 page mapped theeeeeeeeeeeere instead of below
     t_heap *heap_to_dealloc = *heap;
     if (heap_to_dealloc->heap_type != LARGE && check_if_last_heap_type(heap_to_dealloc->heap_type))
     {
@@ -31,22 +30,21 @@ static void dealloc_heap(t_heap **heap)
     if (heap_to_dealloc->next)
         heap_to_dealloc->next->prev = heap_to_dealloc->prev;
 munmap_call:
-    // Check that there is at least 1 heap
+    logger(HEAP_DEALLOC, heap_to_dealloc);
     if (munmap(heap_to_dealloc, heap_to_dealloc->total_size))
         ft_putstr_fd("Free: munmap error\n", 2);
-    logger(HEAP_DEALLOC);
 }
 
 static void defrag_blocks(t_heap **heap, t_chunk **chunk)
 {
     if ((*chunk)->next && (*chunk)->next->freed)
     {
+        logger(MEM_DEFRAG, chunk);
         (*chunk)->size += (*chunk)->next->size;
         (*chunk)->next = (*chunk)->next->next;
         if ((*chunk)->next)
             (*chunk)->next->prev = (*chunk);
         (*heap)->chunk_count--;
-        // logger(MEM_DEFRAG);
     }
     if ((*chunk)->prev && (*chunk)->prev->freed)
         defrag_blocks(heap, &(*chunk)->prev);
@@ -54,8 +52,8 @@ static void defrag_blocks(t_heap **heap, t_chunk **chunk)
 
 static void free_tiny_small(t_heap **heap, t_chunk **chunk)
 {
+    logger(CHUNK_FREED, chunk);
     (*chunk)->freed = true;
-    // logger(BLOCK_FREED);
     if (((*chunk)->prev && (*chunk)->prev->freed) || ((*chunk)->next && (*chunk)->next->freed))
         defrag_blocks(heap, chunk);
     if ((*heap)->chunk_count == 1 && (*heap)->chunk->freed)
@@ -70,12 +68,11 @@ void free(void *ptr)
 
     // ft_dprintf(1, "%s0Free: %p%s\n", UWHITE, ptr, NC);
     ptr -= sizeof(t_chunk);
+    logger(CALL_FREE, NULL);
     // ft_dprintf(1, "%s1Free: %p%s\n", UWHITE, ptr, NC);
 
     for (t_heap *current_heap = g_heap; current_heap; current_heap = current_heap->next)
     {
-        // Can opti this cause of heap address' range
-        // so we don't need to iter on every block of every heap
         for (t_chunk *current_chunk = current_heap->chunk; current_chunk; current_chunk = current_chunk->next)
         {
             if (current_chunk == ptr)

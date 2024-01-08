@@ -101,34 +101,35 @@ static void *alloc_large(const size_t size)
     t_heap *new_heap = addback_new_heap(size, true);
     if (!new_heap)
         return NULL;
-    // Logger
     new_heap->chunk_count = 1;
     new_heap->free_space = 0;
     new_heap->chunk = (void *)new_heap + sizeof(t_heap) + HEAP_SHIFT;
     new_heap->chunk->freed = false;
     new_heap->chunk->size = size - sizeof(t_chunk) - sizeof(t_heap);
+    logger(CHUNK_CREATION, new_heap->chunk);
     return (void *)(new_heap->chunk) + sizeof(t_chunk);
 }
 
 static void init_allocator(void)
 {
-    static bool initialized = false;
-    if (!initialized)
+    static bool alloc_initialized = false;
+    if (!alloc_initialized)
     {
         addback_new_heap(TINY_ARENA, false);
         addback_new_heap(SMALL_ARENA, false);
-        initialized = true;
+        alloc_initialized = true;
     }
 }
 
 void *malloc(size_t size)
 {
+    pthread_mutex_lock(&g_mutex);
+    logger(CALL_MALLOC, NULL);
     if (!size)
         return NULL;
 
     size = align_mem(size);
     void *ptr = NULL;
-    pthread_mutex_lock(&g_mutex);
     init_allocator();
     if (size <= TINY_ALLOC)
         ptr = alloc_tiny_small(size, TINY_ARENA);
@@ -136,7 +137,6 @@ void *malloc(size_t size)
         ptr = alloc_tiny_small(size, SMALL_ARENA);
     else
         ptr = alloc_large(size + sizeof(t_heap) + sizeof(t_chunk));
-        // ptr = alloc_large(&g_heap, size);
 
 #ifdef HISTORY
     record_alloc_history(ALLOC, ptr);
