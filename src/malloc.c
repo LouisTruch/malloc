@@ -35,7 +35,7 @@ static void *alloc_large(const size_t size)
     new_heap->free_space = 0;
     new_heap->chunk = (void *)new_heap + sizeof(t_heap) + HEAP_SHIFT;
     new_heap->chunk->freed = false;
-    new_heap->chunk->size = size - sizeof(t_chunk) - sizeof(t_heap);
+    new_heap->chunk->size = size - sizeof(t_heap);
     logger(CHUNK_CREATION, new_heap->chunk);
     return (void *)(new_heap->chunk) + sizeof(t_chunk);
 }
@@ -43,16 +43,14 @@ static void *alloc_large(const size_t size)
 void *malloc(size_t size)
 {
     pthread_mutex_lock(&g_mutex);
+    init_allocator();
     logger(CALL_MALLOC, NULL);
+    void *ptr = NULL;
     if (!size)
-    {
-        pthread_mutex_unlock(&g_mutex);
-        return NULL;
-    }
+        goto end;
+
     size = align_mem(size);
     size += sizeof(t_chunk);
-    init_allocator();
-    void *ptr = NULL;
     if (size <= TINY_ALLOC)
         ptr = alloc_tiny_small(size, TINY_ARENA);
     else if (size <= SMALL_ALLOC)
@@ -64,6 +62,7 @@ void *malloc(size_t size)
     record_alloc_history(ALLOC, ptr);
 #endif
 
+end:
     pthread_mutex_unlock(&g_mutex);
     return ptr;
 }

@@ -71,7 +71,7 @@ static void basic_test(void)
     free(ptr0_small);
     free(ptr0_large);
     heap_info();
-    if (count_heap() != HEAP_PER_TYPE_CACHED_DEFAULT)
+    if (count_heap() != HEAP_PER_TYPE_CACHED_DEFAULT * 2)
         print_error_exit("Should be 2 heaps left");
     print_success("Basic test");
 }

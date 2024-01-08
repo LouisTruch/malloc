@@ -86,7 +86,6 @@ int ft_atoi(const char *str);
 // Env variable
 #define LOGGER_ENV_VAR "MALLOC_LOGGER"
 #define LOGGER_LEVEL_ENV_VAR "MALLOC_LOGGER_LEVEL"
-#define CACHED_HEAP_ENV_VAR "MALLOC_HEAP_CACHED"
 
 #define HEAP_PER_TYPE_CACHED_DEFAULT 1
 
@@ -115,7 +114,7 @@ typedef enum e_log_action
 void logger(enum e_log_action action, void *ptr);
 
 // Record alloc history
-#include <errno.h> // open() errno
+#include <errno.h> // errno
 #include <fcntl.h> // open()
 
 #define HISTORY_FILEPATH "./alloc_history.txt"
@@ -147,5 +146,7 @@ void record_alloc_history(int function_call, void *ptr);
 void heap_info(void);
 
 void ptr_hex_dump(void *ptr);
+
+#define MEMORY_HOLD_ENV_VAR "MALLOC_MEMORY_HOLD"
 
 #endif // MALLOC_H

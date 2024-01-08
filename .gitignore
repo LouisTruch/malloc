@@ -7,3 +7,4 @@ malloc_test
 test
 test*
 alloc_history
+*.pdf

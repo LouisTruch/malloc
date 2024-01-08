@@ -12,7 +12,7 @@ static void record_free(t_chunk *block, int fd)
     ft_dprintf(fd, "Free address: %X\n", block);
 }
 
-// Must compile with -DHISTORY to enable this function
+// Must compile with -DHISTORY to enable this feature
 void record_alloc_history(int function_call, void *ptr)
 {
     if (!ptr)

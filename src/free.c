@@ -1,7 +1,23 @@
 #include "../inc/malloc.h"
+#include <stdlib.h>   // getenv()
 #include <sys/mman.h> // munmap()
 
-void reset_chunk(t_heap **heap_to_dealloc)
+static bool init_deallocator(void)
+{
+    static bool dealloc_initialized = false;
+    static bool hold_mem = false;
+
+    if (!dealloc_initialized)
+    {
+        dealloc_initialized = true;
+        char *env_var = getenv(MEMORY_HOLD_ENV_VAR);
+        if (env_var && !ft_strcmp(env_var, "true"))
+            hold_mem = true;
+    }
+    return hold_mem;
+}
+
+static void reset_chunk(t_heap **heap_to_dealloc)
 {
     if (!(*heap_to_dealloc)->chunk)
         return;
@@ -10,8 +26,11 @@ void reset_chunk(t_heap **heap_to_dealloc)
     (*heap_to_dealloc)->chunk = NULL;
 }
 
-static void dealloc_heap(t_heap **heap)
+static void dealloc_heap(t_heap **heap, const bool hold_mem)
 {
+    (void)hold_mem;
+    if (hold_mem)
+        return;
     t_heap *heap_to_dealloc = *heap;
     if (heap_to_dealloc->heap_type != LARGE && check_if_last_heap_type(heap_to_dealloc->heap_type))
     {
@@ -50,27 +69,32 @@ static void defrag_chunks(t_heap **heap, t_chunk **chunk)
         defrag_chunks(heap, &(*chunk)->prev);
 }
 
-static void free_tiny_small(t_heap **heap, t_chunk **chunk)
+static void free_large(t_heap **heap, t_chunk **chunk, const bool hold_mem)
+{
+    logger(CHUNK_FREED, &chunk);
+    (*chunk)->freed = true;
+    dealloc_heap(heap, hold_mem);
+}
+
+static void free_tiny_small(t_heap **heap, t_chunk **chunk, const bool hold_mem)
 {
     logger(CHUNK_FREED, &chunk);
     (*chunk)->freed = true;
     if (((*chunk)->prev && (*chunk)->prev->freed) || ((*chunk)->next && (*chunk)->next->freed))
         defrag_chunks(heap, chunk);
     if ((*heap)->chunk_count == 1 && (*heap)->chunk->freed)
-        dealloc_heap(heap);
+        dealloc_heap(heap, hold_mem);
 }
 
 void free(void *ptr)
 {
     pthread_mutex_lock(&g_mutex);
+    const bool hold_mem = init_deallocator();
+    logger(CALL_FREE, NULL);
     if (!ptr)
         goto end;
 
-    // ft_dprintf(1, "%s0Free: %p%s\n", UWHITE, ptr, NC);
     ptr -= sizeof(t_chunk);
-    logger(CALL_FREE, NULL);
-    // ft_dprintf(1, "%s1Free: %p%s\n", UWHITE, ptr, NC);
-
     for (t_heap *current_heap = g_heap; current_heap; current_heap = current_heap->next)
     {
         for (t_chunk *current_chunk = current_heap->chunk; current_chunk; current_chunk = current_chunk->next)
@@ -78,9 +102,9 @@ void free(void *ptr)
             if (current_chunk == ptr)
             {
                 if (current_heap->heap_type == LARGE)
-                    dealloc_heap(&current_heap);
+                    free_large(&current_heap, &current_chunk, hold_mem);
                 else
-                    free_tiny_small(&current_heap, &current_chunk);
+                    free_tiny_small(&current_heap, &current_chunk, hold_mem);
 #ifdef HISTORY
                 record_alloc_history(FREE, ptr);
 #endif
