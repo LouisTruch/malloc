@@ -7,8 +7,7 @@ static size_t print_blocks(t_chunk *chunk)
     {
         if (1)
         {
-            ft_dprintf(1, "%p - %p : %i bytes freed %i\n", chunk, (void *)chunk + chunk->size, chunk->size,
-                       chunk->freed);
+            ft_dprintf(1, "%p - %p : %i bytes\n", chunk, (void *)chunk + chunk->size, chunk->size);
             if (!chunk->freed)
                 total_alloc_block += chunk->size;
         }
@@ -19,13 +18,19 @@ static size_t print_blocks(t_chunk *chunk)
 
 void print_heap_info(t_heap *heap)
 {
-    if (heap->total_size == TINY_ARENA)
+    switch (heap->heap_type)
+    {
+    case TINY:
         ft_putstr_fd("TINY", 1);
-    else if (heap->total_size == SMALL_ARENA)
+        break;
+    case SMALL:
         ft_putstr_fd("SMALL", 1);
-    else
+        break;
+    case LARGE:
         ft_putstr_fd("LARGE", 1);
-    ft_dprintf(1, "%p - %p\n", heap, heap + heap->total_size);
+        break;
+    }
+    ft_dprintf(1, " : %p - %p\n", heap, heap + heap->total_size);
 }
 
 void show_alloc_mem(void)

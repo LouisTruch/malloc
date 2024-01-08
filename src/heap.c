@@ -2,7 +2,7 @@
 #include <sys/mman.h>     // mmap()
 #include <sys/resource.h> // getrlimit()
 
-t_heap *addback_new_heap(const size_t heap_size)
+t_heap *addback_new_heap(const size_t heap_size, const bool is_large)
 {
     t_heap *new_heap = allocate_new_heap(heap_size);
     if (!new_heap)
@@ -13,6 +13,12 @@ t_heap *addback_new_heap(const size_t heap_size)
         last_heap->next = new_heap;
     new_heap->prev = last_heap;
     new_heap->next = NULL;
+    if (is_large)
+        new_heap->heap_type = LARGE;
+    else if (heap_size == TINY_ARENA)
+        new_heap->heap_type = TINY;
+    else if (heap_size == SMALL_ARENA)
+        new_heap->heap_type = SMALL;
     new_heap->total_size = heap_size;
     new_heap->free_space = heap_size - sizeof(t_heap);
     new_heap->chunk_count = 0;
@@ -70,4 +76,19 @@ t_heap *search_heap(const size_t size, const size_t heap_size)
 bool check_heap_free_space(t_heap *heap, const size_t asked_size)
 {
     return (heap->free_space >= asked_size + sizeof(t_chunk));
+}
+
+bool check_if_last_heap_type(const t_heap_type heap_type)
+{
+    size_t nb_heap_same_type = 0;
+    for (t_heap *heap = g_heap; heap; heap = heap->next)
+    {
+        if (heap->heap_type == heap_type)
+        {
+            nb_heap_same_type++;
+            if (nb_heap_same_type > 1)
+                return false;
+        }
+    }
+    return true;
 }

@@ -65,7 +65,7 @@ t_chunk *addback_new_chunk(t_heap **heap, const size_t size)
     if (!(*heap)->chunk)
     {
         (*heap)->chunk_count++;
-        (*heap)->chunk = (void *)(*heap) + sizeof(t_heap);
+        (*heap)->chunk = (void *)((*heap) + sizeof(t_heap) + HEAP_SHIFT);
         (*heap)->chunk->next = NULL;
         (*heap)->chunk->prev = NULL;
         (*heap)->chunk->freed = false;

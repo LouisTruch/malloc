@@ -92,22 +92,33 @@ static void *alloc_tiny_small(const size_t size, const size_t arena_size)
 {
     t_heap *heap = search_heap(size, arena_size);
     if (!heap)
-        heap = addback_new_heap(arena_size);
+        heap = addback_new_heap(arena_size, false);
     return (create_chunk(&heap, size));
 }
 
 static void *alloc_large(const size_t size)
 {
-    t_heap *new_heap = addback_new_heap(size);
+    t_heap *new_heap = addback_new_heap(size, true);
     if (!new_heap)
         return NULL;
     // Logger
     new_heap->chunk_count = 1;
     new_heap->free_space = 0;
-    new_heap->chunk = (void *)new_heap + sizeof(t_heap);
+    new_heap->chunk = (void *)new_heap + sizeof(t_heap) + HEAP_SHIFT;
     new_heap->chunk->freed = false;
     new_heap->chunk->size = size - sizeof(t_chunk) - sizeof(t_heap);
     return (void *)(new_heap->chunk) + sizeof(t_chunk);
+}
+
+static void init_allocator(void)
+{
+    static bool initialized = false;
+    if (!initialized)
+    {
+        addback_new_heap(TINY_ARENA, false);
+        addback_new_heap(SMALL_ARENA, false);
+        initialized = true;
+    }
 }
 
 void *malloc(size_t size)
@@ -118,6 +129,7 @@ void *malloc(size_t size)
     size = align_mem(size);
     void *ptr = NULL;
     pthread_mutex_lock(&g_mutex);
+    init_allocator();
     if (size <= TINY_ALLOC)
         ptr = alloc_tiny_small(size, TINY_ARENA);
     else if (size <= SMALL_ALLOC)

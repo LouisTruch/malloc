@@ -12,20 +12,20 @@
 #define SMALL_ALLOC (size_t)(SMALL_ARENA / (128 + sizeof(t_chunk))) // Min 160 alloc/Small of 1632 bytes max
 
 #define MEM_ALLIGN 16
-// #define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
+#define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
 
-// typedef enum e_arena_size
-// {
-//     TINY,
-//     SMALL,
-//     LARGE
-// } t_arena_size;
+typedef enum e_heap_type
+{
+    TINY,
+    SMALL,
+    LARGE
+} t_heap_type;
 
 typedef struct s_heap
 {
     struct s_heap *next, *prev;
     struct s_chunk *chunk;
-    // t_arena_size arena_size;
+    t_heap_type heap_type;
     size_t total_size;
     size_t free_space;
     size_t chunk_count;
@@ -48,14 +48,14 @@ void free(void *ptr);
 
 // Heap
 t_heap *allocate_new_heap(const size_t arena_size);
-t_heap *addback_new_heap(const size_t arena_size);
+t_heap *addback_new_heap(const size_t arena_size, const bool is_large);
 bool check_heap_free_space(t_heap *heap, const size_t asked_size);
 t_heap *search_heap(const size_t size, const size_t arena_size);
 t_heap *get_last_heap(void);
+bool check_if_last_heap_type(const t_heap_type heap_type);
 
 // Chunk
 void *create_chunk(t_heap **heap, const size_t asked_size);
-// bool search_chunks(t_heap *heap, const size_t asked_size);
 t_chunk *check_freed_chunks(t_heap **heap, const size_t size);
 void divide_chunk(t_heap **heap, t_chunk **found_block, const size_t old_block_size);
 void *find_free_chunk(t_heap *heap, const size_t asked_size);
@@ -82,8 +82,9 @@ void *ft_memmove(void *dest, const void *src, size_t n);
 void ft_putstr_fd(char *s, int fd);
 void ft_bzero(void *s, size_t n);
 
-// Bonus logger
-#define LOGGER_ENV_VAR "MALLOC_LOG"
+// Env variable
+#define LOGGER_ENV_VAR "MALLOC_LOGGER"
+#define NB_PAGE_CACHED_ENV_VAR "MALLOC_PAGE_CACHED"
 
 typedef enum e_logger_state
 {
