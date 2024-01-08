@@ -35,7 +35,7 @@ munmap_call:
         ft_putstr_fd("Free: munmap error\n", 2);
 }
 
-static void defrag_blocks(t_heap **heap, t_chunk **chunk)
+static void defrag_chunks(t_heap **heap, t_chunk **chunk)
 {
     if ((*chunk)->next && (*chunk)->next->freed)
     {
@@ -47,15 +47,15 @@ static void defrag_blocks(t_heap **heap, t_chunk **chunk)
         (*heap)->chunk_count--;
     }
     if ((*chunk)->prev && (*chunk)->prev->freed)
-        defrag_blocks(heap, &(*chunk)->prev);
+        defrag_chunks(heap, &(*chunk)->prev);
 }
 
 static void free_tiny_small(t_heap **heap, t_chunk **chunk)
 {
-    logger(CHUNK_FREED, chunk);
+    logger(CHUNK_FREED, &chunk);
     (*chunk)->freed = true;
     if (((*chunk)->prev && (*chunk)->prev->freed) || ((*chunk)->next && (*chunk)->next->freed))
-        defrag_blocks(heap, chunk);
+        defrag_chunks(heap, chunk);
     if ((*heap)->chunk_count == 1 && (*heap)->chunk->freed)
         dealloc_heap(heap);
 }

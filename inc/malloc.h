@@ -6,10 +6,10 @@
 
 #include <unistd.h> // getpagesize()
 #define PAGE_SIZE getpagesize()
-#define TINY_ARENA (size_t)(PAGE_SIZE * 4)                          // 16384 bytes
-#define TINY_ALLOC (size_t)(TINY_ARENA / (128 + sizeof(t_chunk)))   // Min 128 alloc/Tiny of 96 bytes max
-#define SMALL_ARENA (size_t)(PAGE_SIZE * 64)                        // 262144 bytes
-#define SMALL_ALLOC (size_t)(SMALL_ARENA / (128 + sizeof(t_chunk))) // Min 160 alloc/Small of 1632 bytes max
+#define TINY_ARENA (size_t)(PAGE_SIZE * 4)        // 16384 bytes
+#define TINY_ALLOC (size_t)(TINY_ARENA / (128))   // Min 127 alloc/Tiny of 96 bytes max
+#define SMALL_ARENA (size_t)(PAGE_SIZE * 64)      // 262144 bytes
+#define SMALL_ALLOC (size_t)(SMALL_ARENA / (128)) // Min 160 alloc/Small of 1632 bytes max
 
 #define MEM_ALLIGN 16
 #define HEAP_SHIFT (((sizeof(t_heap) + MEM_ALLIGN - 1) & ~(MEM_ALLIGN - 1)) - sizeof(t_heap))
@@ -49,7 +49,7 @@ void free(void *ptr);
 // Heap
 t_heap *allocate_new_heap(const size_t arena_size);
 t_heap *addback_new_heap(const size_t arena_size, const bool is_large);
-bool check_heap_free_space(t_heap *heap, const size_t asked_size);
+bool check_heap_free_space(t_heap *heap, const size_t size);
 t_heap *search_heap(const size_t size, const size_t arena_size);
 t_heap *get_last_heap(void);
 bool check_if_last_heap_type(const t_heap_type heap_type);
@@ -58,7 +58,6 @@ bool check_if_last_heap_type(const t_heap_type heap_type);
 void *create_chunk(t_heap **heap, const size_t asked_size);
 t_chunk *check_freed_chunks(t_heap **heap, const size_t size);
 void divide_chunk(t_heap **heap, t_chunk **found_block, const size_t old_block_size);
-void *find_free_chunk(t_heap *heap, const size_t asked_size);
 
 // Utils
 // int get_arena_size(size_t size);
@@ -82,12 +81,14 @@ void *ft_memmove(void *dest, const void *src, size_t n);
 void ft_putstr_fd(char *s, int fd);
 void ft_bzero(void *s, size_t n);
 int ft_strcmp(const char *s1, const char *s2);
-//
+int ft_atoi(const char *str);
 
 // Env variable
 #define LOGGER_ENV_VAR "MALLOC_LOGGER"
 #define LOGGER_LEVEL_ENV_VAR "MALLOC_LOGGER_LEVEL"
-#define NB_PAGE_CACHED_ENV_VAR "MALLOC_PAGE_CACHED"
+#define CACHED_HEAP_ENV_VAR "MALLOC_HEAP_CACHED"
+
+#define HEAP_PER_TYPE_CACHED_DEFAULT 1
 
 typedef enum e_logger_state
 {

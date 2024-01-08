@@ -73,9 +73,9 @@ t_heap *search_heap(const size_t size, const size_t heap_size)
     return heap;
 }
 
-bool check_heap_free_space(t_heap *heap, const size_t asked_size)
+bool check_heap_free_space(t_heap *heap, const size_t size)
 {
-    return (heap->free_space >= asked_size + sizeof(t_chunk));
+    return (heap->free_space >= size + sizeof(t_chunk));
 }
 
 bool check_if_last_heap_type(const t_heap_type heap_type)
@@ -86,7 +86,7 @@ bool check_if_last_heap_type(const t_heap_type heap_type)
         if (heap->heap_type == heap_type)
         {
             nb_heap_same_type++;
-            if (nb_heap_same_type > 1)
+            if (nb_heap_same_type > HEAP_PER_TYPE_CACHED_DEFAULT)
                 return false;
         }
     }

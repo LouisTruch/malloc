@@ -15,29 +15,17 @@ void divide_chunk(t_heap **heap, t_chunk **divided_chunk, const size_t old_chunk
     }
 }
 
-void *find_free_chunk(t_heap *heap, const size_t size)
-{
-    t_chunk *chunk = heap->chunk;
-    while (chunk)
-    {
-        if (chunk->freed && chunk->size >= size + sizeof(t_chunk))
-            return chunk;
-        chunk = chunk->next;
-    }
-    ft_putstr_fd("Malloc: Error while attributing chunk\n", 2);
-    return NULL;
-}
-
 t_chunk *check_freed_chunks(t_heap **heap, const size_t size)
 {
     for (t_chunk *chunk = (*heap)->chunk; chunk; chunk = chunk->next)
     {
-        if (chunk->freed && chunk->size >= size + sizeof(t_chunk))
+        if (chunk->freed && chunk->size >= size)
         {
             logger(CHUNK_ATTRIBUTION, &heap);
             return chunk;
         }
     }
+    // ft_putstr_fd("Malloc: Error while attributing chunk\n", 2);
     return NULL;
 }
 
@@ -54,11 +42,11 @@ t_chunk *addback_new_chunk(t_heap **heap, const size_t size)
     if (!(*heap)->chunk)
     {
         (*heap)->chunk_count++;
-        (*heap)->chunk = (void *)((*heap) + sizeof(t_heap) + HEAP_SHIFT);
+        (*heap)->chunk = (void *)(*heap) + sizeof(t_heap) + HEAP_SHIFT;
         (*heap)->chunk->next = NULL;
         (*heap)->chunk->prev = NULL;
         (*heap)->chunk->freed = false;
-        (*heap)->chunk->size = size + sizeof(t_chunk);
+        (*heap)->chunk->size = size;
         (*heap)->free_space -= (*heap)->chunk->size;
         logger(CHUNK_CREATION, (*heap)->chunk);
         return (*heap)->chunk;
@@ -70,7 +58,7 @@ t_chunk *addback_new_chunk(t_heap **heap, const size_t size)
     new_chunk->next = NULL;
     new_chunk->prev = last_chunk;
     new_chunk->freed = false;
-    new_chunk->size = size + sizeof(t_chunk);
+    new_chunk->size = size;
     (*heap)->free_space -= new_chunk->size;
     logger(CHUNK_CREATION, new_chunk);
     return new_chunk;

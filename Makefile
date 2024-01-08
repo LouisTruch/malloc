@@ -51,10 +51,10 @@ $(PATH_OBJ)/%.o: $(PATH_SRC)/%.c
 	$(CC) -c -o $@ $(FLAGS_CC) $^ -O0 -g -I $(PATH_INC)
 
 clean:
-	rm -rf $(PATH_OBJ) 
+	rm -rf $(OBJ) $(OBJ_TEST)
 
 fclean: clean
-	rm -f $(NAME) $(NAME_TEST) $(LIB_NAME) $(HISTORY_FILEPATH)
+	rm -rf $(NAME) $(NAME_TEST) $(LIB_NAME) $(HISTORY_FILEPATH) 
 
 re: fclean $(NAME)
 

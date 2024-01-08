@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 
-void block_hex_dump(t_chunk **ptr)
+void chunk_hex_dump(t_chunk **ptr)
 {
     t_chunk *chunk = *ptr;
     unsigned char *data = (unsigned char *)chunk + sizeof(t_chunk);
@@ -45,12 +45,12 @@ void ptr_hex_dump(void *ptr)
     {
         // Can opti this cause of heap address' range
         // so we don't need to iter on every block of every heap
-        for (t_chunk *current_block = current_heap->chunk; current_block; current_block = current_block->next)
+        for (t_chunk *current_chunk = current_heap->chunk; current_chunk; current_chunk = current_chunk->next)
         {
-            if (current_block == ptr && !current_block->freed)
+            if (current_chunk == ptr && !current_chunk->freed)
             {
                 // here
-                block_hex_dump(&current_block);
+                chunk_hex_dump(&current_chunk);
                 goto end;
             }
         }

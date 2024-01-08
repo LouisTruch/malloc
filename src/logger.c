@@ -50,11 +50,11 @@ void logger(enum e_log_action action, void *ptr)
     switch (action)
     {
     case CALL_MALLOC:
-        print_action("Call Malloc");
-        break;
+        print_action("Call Malloc\n");
+        return;
     case CALL_FREE:
-        print_action("Call Free");
-        break;
+        print_action("Call Free\n");
+        return;
     default:
         break;
     }
@@ -87,7 +87,8 @@ void logger(enum e_log_action action, void *ptr)
         }
     if (logger_state == FULL && ptr)
         ft_dprintf(1, "\t@: %p", ptr);
-    write(1, "\n", 1);
+    if (logger_state != BASIC)
+        write(1, "\n", 1);
 }
 // switch (action)
 // {

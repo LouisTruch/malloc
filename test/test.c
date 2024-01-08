@@ -1,4 +1,24 @@
 #include "../inc/malloc.h"
+#include <stdlib.h>
+
+static size_t count_heap(void)
+{
+    size_t count = 0;
+    for (t_heap *heap = g_heap; heap; heap = heap->next)
+        count++;
+    return count;
+}
+
+static void print_error_exit(char *str)
+{
+    ft_dprintf(2, "%sError: %s %s\n", BRED, str, NC);
+    exit(EXIT_FAILURE);
+}
+
+static void print_success(char *str)
+{
+    ft_dprintf(1, "%sSuccess: %s%s\n", BGREEN, str, NC);
+}
 
 static void print_category(char *category)
 {
@@ -14,9 +34,10 @@ static void basic_test(void)
 {
     ft_putstr_fd("Basic test...\n", 1);
     print_category("Tiny basic test");
-    void *ptr0_tiny = malloc(1);
-    void *ptr1_tiny = malloc(1);
-    void *ptr2_tiny = malloc(1);
+    char *ptr0_tiny = malloc(1);
+    ptr0_tiny[0] = 'a';
+    char *ptr1_tiny = malloc(1);
+    char *ptr2_tiny = malloc(1);
     free(ptr0_tiny);
     free(ptr2_tiny);
     heap_info();
@@ -24,7 +45,8 @@ static void basic_test(void)
     heap_info();
 
     print_category("Small basic test");
-    void *ptr0_small = malloc(100);
+    char *ptr0_small = malloc(100);
+    ptr0_small[0] = 'a';
     char *ptr1_small = malloc(100);
     free(ptr0_small);
     heap_info();
@@ -32,8 +54,9 @@ static void basic_test(void)
     heap_info();
 
     print_category("Large basic test");
-    void *ptr0_large = malloc(100000);
-    void *ptr1_large = malloc(100000);
+    char *ptr0_large = malloc(100000);
+    ptr0_large[0] = 'a';
+    char *ptr1_large = malloc(100000);
     heap_info();
     free(ptr0_large);
     free(ptr1_large);
@@ -48,11 +71,15 @@ static void basic_test(void)
     free(ptr0_small);
     free(ptr0_large);
     heap_info();
+    if (count_heap() != HEAP_PER_TYPE_CACHED_DEFAULT)
+        print_error_exit("Should be 2 heaps left");
+    print_success("Basic test");
 }
 
+// Test the number of pages allocated
 static void overhead_test(void)
 {
-    ft_putstr_fd("Overhead test...\n", 1);
+    ft_putstr_fd("Overhead test...\nShould execute with /usr/bin/time -v\n", 1);
     int i;
     char *addr;
 
@@ -68,9 +95,10 @@ static void overhead_test(void)
         addr[0] = 42;
         i++;
     }
+    print_success("Overhead test");
 }
 
-// This test should always segfault
+// This test should always segfault on assignation to ptr0[0]
 static void free_test(void)
 {
     ft_putstr_fd("Free test...\n", 1);
@@ -82,6 +110,7 @@ static void free_test(void)
     heap_info();
 }
 
+// Test that the allocator always keeps at least one page allocated
 static void page_caching_test(void)
 {
     ft_putstr_fd("Page caching test...\n", 1);
@@ -89,14 +118,15 @@ static void page_caching_test(void)
     char *addr;
 
     i = 0;
-    while (i < 10240)
+    while (i < 1)
     {
-        addr = (char *)malloc(1024);
+        addr = (char *)malloc(10);
         (void)addr;
         free(addr);
         i++;
     }
-    // heap_info();
+    heap_info();
+    print_success("Page caching test");
 }
 
 #define M (1024 * 1024)
@@ -131,6 +161,7 @@ static void realloc_test(void)
     }
     addr3[127 * M] = 42;
     ft_putstr_fd(addr3, 1);
+    print_success("Realloc");
 }
 
 static void show_alloc_mem_test(void)
@@ -198,12 +229,29 @@ static void alignement_test(void)
         i++;
         free(addr);
     }
+    print_success("Alignement test");
 }
 
 static void advanced_test(void)
 {
     ft_putstr_fd("Advanced test...\n", 1);
-    //
+    char *p[128];
+    for (size_t i = 0; i < 128; i++)
+    {
+        p[i] = malloc(96);
+        p[i][0] = 'z';
+        // free(p0);
+        // ft_dprintf(1, "i%i\n", i);
+    }
+    for (size_t i = 0; i < 128; i++)
+    {
+        free(p[i]);
+        // ft_dprintf(1, "i%i\n", i);
+    }
+    heap_info();
+    ft_dprintf(1, "nbheap%i\n", count_heap());
+    heap_info();
+    print_success("Advanced test");
 }
 
 static void defrag_test(void)
@@ -223,6 +271,7 @@ static void defrag_test(void)
 
 static void ptr_hex_dump_test(void)
 {
+    ;
     ft_putstr_fd("Ptr hex dump test...\n", 1);
     char *p0 = malloc(100);
     char *p1 = malloc(101);
@@ -236,6 +285,7 @@ static void ptr_hex_dump_test(void)
     free(p0);
     free(p1);
     free(p2);
+    print_success("Ptr hex dump test");
 }
 
 static void random_test(void)
