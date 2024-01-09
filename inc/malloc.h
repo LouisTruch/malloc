@@ -60,28 +60,12 @@ t_chunk *check_freed_chunks(t_heap **heap, const size_t size);
 void divide_chunk(t_heap **heap, t_chunk **found_block, const size_t old_block_size);
 
 // Utils
-// int get_arena_size(size_t size);
 size_t align_mem(size_t size);
 
 // Log
 void show_alloc_mem(void);
 void print_heap_info(t_heap *heap);
 void show_alloc_mem_hex(void);
-
-// Lib move this another .h
-#include <stdarg.h>
-
-#define B_DEC "0123456789"
-#define B_HEXL "0123456789abcdef"
-#define B_HEXU "0123456789ABCDEF"
-
-int ft_dprintf(int fd, const char *format, ...);
-size_t ft_strlen(const char *s);
-void *ft_memmove(void *dest, const void *src, size_t n);
-void ft_putstr_fd(char *s, int fd);
-void ft_bzero(void *s, size_t n);
-int ft_strcmp(const char *s1, const char *s2);
-int ft_atoi(const char *str);
 
 // Env variable
 #define LOGGER_ENV_VAR "MALLOC_LOGGER"
@@ -114,9 +98,6 @@ typedef enum e_log_action
 void logger(enum e_log_action action, void *ptr);
 
 // Record alloc history
-#include <errno.h> // errno
-#include <fcntl.h> // open()
-
 #define HISTORY_FILEPATH "./alloc_history.txt"
 
 typedef enum e_function_call
@@ -148,5 +129,20 @@ void heap_info(void);
 void ptr_hex_dump(void *ptr);
 
 #define MEMORY_HOLD_ENV_VAR "MALLOC_MEMORY_HOLD"
+
+// Lib
+#include <stdarg.h>
+
+#define B_DEC "0123456789"
+#define B_HEXL "0123456789abcdef"
+#define B_HEXU "0123456789ABCDEF"
+
+int ft_dprintf(int fd, const char *format, ...);
+size_t ft_strlen(const char *s);
+void *ft_memmove(void *dest, const void *src, size_t n);
+void ft_putstr_fd(char *s, int fd);
+void ft_bzero(void *s, size_t n);
+int ft_strcmp(const char *s1, const char *s2);
+int ft_atoi(const char *str);
 
 #endif // MALLOC_H

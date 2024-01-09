@@ -1,4 +1,6 @@
 #include "../inc/malloc.h"
+#include <errno.h> // errno
+#include <fcntl.h> // open()
 
 static void record_malloc(t_chunk *block, int fd)
 {
