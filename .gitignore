@@ -5,6 +5,10 @@ a.out
 malloc
 malloc_test
 test
+test.c
 test*
-alloc_history
+test*.c
+alloc_history.txt
 *.pdf
+Intra Projects malloc Edit.pdf
+run.sh

@@ -35,8 +35,6 @@ static u_int8_t check_env_var(void)
 void logger(enum e_log_action action, void *ptr)
 {
     static u_int8_t logger_state = UNDEFINED;
-    // if (ptr)
-    // ft_dprintf(1, "plog:%p\n", ptr);
     if (logger_state == DISABLED)
         return;
     if (logger_state == UNDEFINED)

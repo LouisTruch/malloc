@@ -290,8 +290,16 @@ static void ptr_hex_dump_test(void)
 
 static void random_test(void)
 {
-    char *p0 = malloc(1);
-    free(p0);
+    int i;
+    char *addr;
+
+    i = 0;
+    while (i < 10240)
+    {
+        addr = (char *)malloc(1024);
+        free(addr);
+        i++;
+    }
 }
 
 int main(int argc, char **argv)

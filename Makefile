@@ -5,6 +5,7 @@ endif
 PATH_INC = inc
 PATH_SRC = src
 PATH_TEST = test
+PATH_OBJ = obj
 
 SRC += $(wildcard $(PATH_SRC)/*.c)
 SRC_TEST += $(wildcard $(PATH_TEST)/*.c)
@@ -25,7 +26,7 @@ HISTORY_FILEPATH = alloc_history.txt
 
 CC = gcc
 
-FLAGS_CC = -Wall -Wextra -Werror -fPIC -DHISTORY
+FLAGS_CC = -Wall -Wextra -Werror -fPIC
 FLAGS_TEST = -Wall -Wextra -Werror
 FLAGS_LIB = -shared
 
@@ -51,7 +52,7 @@ $(PATH_OBJ)/%.o: $(PATH_SRC)/%.c
 	$(CC) -c -o $@ $(FLAGS_CC) $^ -O0 -g -I $(PATH_INC)
 
 clean:
-	rm -rf $(OBJ) $(OBJ_TEST)
+	rm -rf $(PATH_OBJ) $(OBJ) $(OBJ_TEST)
 
 fclean: clean
 	rm -rf $(NAME) $(NAME_TEST) $(LIB_NAME) $(HISTORY_FILEPATH) 
