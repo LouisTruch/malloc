@@ -30,7 +30,6 @@ void heap_info(void)
         {
             ft_dprintf(1, "%sBlock:\t%p%s ", RED, chunk, NC);
             ft_dprintf(1, "%sSize:%i%s ", YELLOW, chunk->size, NC);
-            // ft_dprintf(1, "%sAlignedSize:%i%s ", GREEN, current_block->size - sizeof(t_block), NC);
             ft_dprintf(1, "%sFreed:", CYAN);
             if (chunk->freed)
                 ft_putstr_fd("yes", 1);

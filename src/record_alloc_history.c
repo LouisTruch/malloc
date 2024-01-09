@@ -7,8 +7,6 @@ static void record_malloc(t_chunk *block, int fd)
 
 static void record_free(t_chunk *block, int fd)
 {
-    // ft_dprintf(fd, "Allocation: Size: %i", block->size);
-    // ft_putstr_fd("Free: \n", fd);
     ft_dprintf(fd, "Free address: %X\n", block);
 }
 

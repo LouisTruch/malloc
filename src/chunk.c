@@ -25,7 +25,6 @@ t_chunk *check_freed_chunks(t_heap **heap, const size_t size)
             return chunk;
         }
     }
-    // ft_putstr_fd("Malloc: Error while attributing chunk\n", 2);
     return NULL;
 }
 
